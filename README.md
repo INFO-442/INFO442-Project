@@ -1,6 +1,6 @@
 # INFO442-Project
 
- - Tanmay Kuchhal - PM
- - Chunyao Lin - Prod
- - Lance Santos - Dev
- - Bosen Shen - Dev
+ - Tanmay Kuchhal - Product Manager
+ - Chunyao Lin - Product Designer
+ - Lance Santos - Developer
+ - Bosen Shen - Developer
