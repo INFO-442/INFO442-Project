@@ -4,3 +4,4 @@
  - Chunyao Lin - Product Designer
  - Lance Santos - Developer
  - Bosen Shen - Developer
+ - Frank Shi - Developer
