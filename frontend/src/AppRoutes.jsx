@@ -31,7 +31,7 @@ const AppRoutes = createBrowserRouter([
         { path: "*", element: <Navigate to="/" /> },
     ],
     },
-    { path: "/customer", element: <CustomerPage /> },
+    { path: "/c/:business", element: <CustomerPage /> },
 ]);
 
 export default AppRoutes;
