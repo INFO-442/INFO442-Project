@@ -1,5 +1,6 @@
 import { createBrowserRouter, Outlet, Navigate } from "react-router";
 
+import Navbar from './components/Navbar/Navbar.jsx'
 import DashboardPage from './pages/Dashboard/Dashboard.jsx'
 import FeedbackPage from "./pages/Feedback/Feedback.jsx";
 import QuestionsPage from "./pages/Questions/Questions.jsx";
@@ -10,7 +11,10 @@ import CustomerPage from "./pages/Customer/Customer.jsx";
 
 function DashboardLayout() {
   return (
-    <Outlet />
+    <>
+      <Navbar />
+      <Outlet />
+    </>
   )
 }
 
