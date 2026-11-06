@@ -1,7 +1,49 @@
 .feedbackPage {
-  margin: auto;
-  padding: 1rem 2rem;
-  border-radius: 0.75rem;
-  color: #6b21a8;
-  background-color: #f3e8ff;
+  padding: 1rem;
+}
+
+.filterDiv {
+  padding: 1rem;
+}
+
+.table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+.table th {
+  width: 7em;
+}
+.table .wideColumn {
+  width: 100%;
+}
+
+.table td, .table th {
+  border: 1px solid black;
+  text-align: left;
+  padding: 8px;
+}
+
+.table button {
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  margin: 0 0.5em;
+}
+.table button:hover {
+  color: rgb(59, 59, 59);
+}
+
+.feedbackUnder {
+  font-size: 0.9em;
+}
+
+.sentiment {
+  border: 1px solid black;
+  border-radius: 50pt;
+  padding: 0.1em 0.5em;
 }
