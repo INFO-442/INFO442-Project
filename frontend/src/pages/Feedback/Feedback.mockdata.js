@@ -3,7 +3,8 @@ export const mockData = [
     Feedback_ID: 105,
     Business_ID: 1,
     Language: "English",
-    Date: "2026-11-02",
+    Date: "2026-11-02T14:32:00",
+    voice: true,
     Rating: 5,
     Sentiment: "Positive",
     Responses: [
@@ -37,7 +38,8 @@ export const mockData = [
     Feedback_ID: 106,
     Business_ID: 1,
     Language: "Spanish",
-    Date: "2026-11-05",
+    Date: "2026-11-05T18:47:00",
+    voice: false,
     Rating: 3,
     Sentiment: "Neutral",
     Responses: [
@@ -71,7 +73,8 @@ export const mockData = [
     Feedback_ID: 107,
     Business_ID: 1,
     Language: "Korean",
-    Date: "2026-11-01",
+    Date: "2026-11-01T12:15:00",
+    voice: true,
     Rating: 2,
     Sentiment: "Negative",
     Responses: [
@@ -105,7 +108,8 @@ export const mockData = [
     Feedback_ID: 108,
     Business_ID: 1,
     Language: "English",
-    Date: "2026-11-04",
+    Date: "2026-11-04T19:06:00",
+    voice: false,
     Rating: 4,
     Sentiment: "Positive",
     Responses: [
@@ -139,7 +143,8 @@ export const mockData = [
     Feedback_ID: 109,
     Business_ID: 1,
     Language: "Spanish",
-    Date: "2026-10-30",
+    Date: "2026-10-30T20:21:00",
+    voice: false,
     Rating: 1,
     Sentiment: "Negative",
     Responses: [
@@ -173,7 +178,8 @@ export const mockData = [
     Feedback_ID: 110,
     Business_ID: 1,
     Language: "Korean",
-    Date: "2026-11-03",
+    Date: "2026-11-03T13:54:00",
+    voice: true,
     Rating: 5,
     Sentiment: "Positive",
     Responses: [
@@ -207,7 +213,8 @@ export const mockData = [
     Feedback_ID: 111,
     Business_ID: 1,
     Language: "English",
-    Date: "2026-10-28",
+    Date: "2026-10-28T17:38:00",
+    voice: false,
     Rating: 3,
     Sentiment: "Neutral",
     Responses: [
@@ -241,7 +248,8 @@ export const mockData = [
     Feedback_ID: 112,
     Business_ID: 1,
     Language: "Arabic",
-    Date: "2026-11-05",
+    Date: "2026-11-05T11:09:00",
+    voice: true,
     Rating: 4,
     Sentiment: "Positive",
     Responses: [
@@ -275,7 +283,8 @@ export const mockData = [
     Feedback_ID: 113,
     Business_ID: 1,
     Language: "Spanish",
-    Date: "2026-10-25",
+    Date: "2026-10-25T16:42:00",
+    voice: false,
     Rating: 2,
     Sentiment: "Negative",
     Responses: [
@@ -309,7 +318,8 @@ export const mockData = [
     Feedback_ID: 114,
     Business_ID: 1,
     Language: "Vietnamese",
-    Date: "2026-11-04",
+    Date: "2026-11-04T15:27:00",
+    voice: true,
     Rating: 5,
     Sentiment: "Positive",
     Responses: [
