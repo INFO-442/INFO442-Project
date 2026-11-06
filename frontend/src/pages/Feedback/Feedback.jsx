@@ -1,13 +1,21 @@
 import feedbackCSS from './Feedback.module.css'
 import { useState } from 'react'
 
-import { feedbacks } from './Feedback.mockdata.js'
+import { mockData } from './Feedback.mockdata.js'
 
 function FeedbackPage() {
+  const sortFuncs = {
+    new: (a, b) => b.Date.localeCompare(a.Date),
+    old: (a, b) => a.Date.localeCompare(b.Date),
+    high: (a, b) => b.Rating - a.Rating,
+    low: (a, b) => a.Rating - b.Rating,
+  }
+  const [sort, setSort] = useState("new");
+  
   return (
     <div className={feedbackCSS.feedbackPage}>
       <h1>All Feedback</h1>
-      <Filters />
+      <Filters setSort={setSort}/>
       <table className={feedbackCSS.table}>
         <tr>
           <th>Date</th>
@@ -15,7 +23,7 @@ function FeedbackPage() {
           <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
           <th>Sentiment</th>
         </tr>
-        {feedbacks.map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
+        {[...mockData].sort(sortFuncs[sort]).map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
       </table>
       <dialog id="full-response">
         <p>This dialog was opened using an invoker command.</p>
@@ -25,7 +33,7 @@ function FeedbackPage() {
   )
 }
 
-function Filters() {
+function Filters({setSort}) {
   return <div className={feedbackCSS.filterDiv}>
         <input type="text" id="search" name="search" required minlength="2" size="40" />
         <select name="rating" id="rating">
@@ -42,7 +50,7 @@ function Filters() {
           <option value="neutral">Sentiment: neutral</option>
           <option value="negative">Sentiment: negative</option>
         </select>
-        <select name="sort" id="sort">
+        <select name="sort" id="sort" onChange={(e) => setSort(e.target.value)}>
           <option value="new">Newest first</option>
           <option value="old">Oldest first</option>
           <option value="high">Highest rating</option>

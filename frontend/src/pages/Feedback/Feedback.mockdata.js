@@ -1,9 +1,9 @@
-export const feedbacks = [
+export const mockData = [
   {
     Feedback_ID: 105,
     Business_ID: 1,
     Language: "English",
-    Date: "2026-11-05",
+    Date: "2026-11-02",
     Rating: 5,
     Sentiment: "Positive",
     Responses: [
@@ -71,7 +71,7 @@ export const feedbacks = [
     Feedback_ID: 107,
     Business_ID: 1,
     Language: "Korean",
-    Date: "2026-11-05",
+    Date: "2026-11-01",
     Rating: 2,
     Sentiment: "Negative",
     Responses: [
