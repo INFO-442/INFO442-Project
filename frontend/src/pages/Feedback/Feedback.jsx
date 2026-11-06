@@ -17,6 +17,15 @@ function FeedbackPage() {
   const [sentiment, setSentiment] = useState("");
   const [search, setSearch] = useState("");
 
+  function clearFilters() {
+    setSort("new");
+    setRating("");
+    setSentiment("");
+    setSearch("");
+  }
+
+  const filterProps = { sort, rating, sentiment, search, setSort, setRating, setSentiment, setSearch };
+
   let filtered = mockData;
   if (rating !== "") { filtered = filtered.filter(f => f.Rating == rating) }
   if (sentiment !== "") { filtered = filtered.filter(f => f.Sentiment == sentiment) }
@@ -29,11 +38,10 @@ function FeedbackPage() {
   }
   const sorted = [...filtered].sort(sortFuncs[sort])
 
-
   return (
     <div className={feedbackCSS.feedbackPage}>
       <h1>All Feedback</h1>
-      <Filters setSearch={setSearch} setRating={setRating} setSentiment={setSentiment} setSort={setSort}/>
+      <Filters {...filterProps}/>
       <table className={feedbackCSS.table}>
         <tr>
           <th>Date</th>
@@ -41,8 +49,12 @@ function FeedbackPage() {
           <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
           <th>Sentiment</th>
         </tr>
-        {sorted.map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
+        {sorted.length > 0 && sorted.map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
       </table>
+      {sorted.length == 0 && <div className={feedbackCSS.noFeedback}>
+        <span>No feedback matches your filters. </span>
+        <button onClick={clearFilters}>Clear filters</button>
+      </div> }
       <dialog id="full-response">
         <p>This dialog was opened using an invoker command.</p>
         <button commandfor="full-response" command="close">Close</button>
@@ -51,11 +63,11 @@ function FeedbackPage() {
   )
 }
 
-function Filters({setSearch, setRating, setSentiment, setSort}) {
+function Filters({search, rating, sentiment, sort, setSearch, setRating, setSentiment, setSort}) {
   return <div className={feedbackCSS.filterDiv}>
-        <input type="text" id="search" name="search" required minlength="2" size="40" 
+        <input value={search} type="text" id="search" name="search" required minlength="2" size="40" 
         placeholder='Search Feedback (e.g. "service")' onChange={(e) => setSearch(e.target.value.toLocaleLowerCase())}/>
-        <select name="rating" id="rating" onChange={(e) => setRating(e.target.value)}>
+        <select value={rating} name="rating" id="rating" onChange={(e) => setRating(e.target.value)}>
           <option value="">Rating: All</option>
           <option value="5">Rating: 5</option>
           <option value="4">Rating: 4</option>
@@ -63,13 +75,13 @@ function Filters({setSearch, setRating, setSentiment, setSort}) {
           <option value="2">Rating: 2</option>
           <option value="1">Rating: 1</option>
         </select>
-        <select name="sentiment" id="sentiment" onChange={(e) => setSentiment(e.target.value)}>
+        <select value={sentiment} name="sentiment" id="sentiment" onChange={(e) => setSentiment(e.target.value)}>
           <option value="">Sentiment: All</option>
           <option value="Positive">Sentiment: Positive</option>
           <option value="Neutral">Sentiment: Neutral</option>
           <option value="Negative">Sentiment: Negative</option>
         </select>
-        <select name="sort" id="sort" onChange={(e) => setSort(e.target.value)}>
+        <select value={sort} name="sort" id="sort" onChange={(e) => setSort(e.target.value)}>
           <option value="new">Newest first</option>
           <option value="old">Oldest first</option>
           <option value="high">Highest rating</option>

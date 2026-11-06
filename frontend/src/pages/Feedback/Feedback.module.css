@@ -3,7 +3,7 @@
 }
 
 .filterDiv {
-  padding: 1rem;
+  padding: 1rem 0;
 }
 
 .table {
@@ -22,10 +22,10 @@
 .table td, .table th {
   border: 1px solid black;
   text-align: left;
-  padding: 8px;
+  padding: 0.5em;
 }
 
-.table button {
+.table button, .noFeedback button {
   background: none;
   border: none;
   padding: 0;
@@ -34,7 +34,7 @@
   font: inherit;
   margin: 0 0.5em;
 }
-.table button:hover {
+.table button:hover, .noFeedback button:hover {
   color: rgb(59, 59, 59);
 }
 
@@ -46,4 +46,8 @@
   border: 1px solid black;
   border-radius: 50pt;
   padding: 0.1em 0.5em;
+}
+
+.noFeedback {
+  margin: 1em 0.5em;
 }
