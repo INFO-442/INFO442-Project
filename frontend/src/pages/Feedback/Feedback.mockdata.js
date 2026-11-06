@@ -317,7 +317,7 @@ export const mockData = [
   {
     Feedback_ID: 114,
     Business_ID: 1,
-    Language: "Vietnamese",
+    Language: "Chinese (Simplified)",
     Date: "2026-11-04T15:27:00",
     voice: true,
     Rating: 5,
@@ -326,26 +326,201 @@ export const mockData = [
       {
         Response_ID: 1040,
         Question_ID: 1,
-        Question_Native: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Question_Native: "您的整体体验如何？",
         Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
-        Native: "Món ăn rất ngon, không gian sạch sẽ và trang trí rất đẹp.",
-        Translated: "Món ăn rất ngon, không gian sạch sẽ và trang trí rất đẹp."
+        Native: "食物非常美味，环境干净整洁，装饰也很漂亮。",
+        Translated: "Đồ ăn rất ngon, không gian sạch sẽ và trang trí rất đẹp."
       },
       {
         Response_ID: 1041,
         Question_ID: 2,
-        Question_Native: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Question_Native: "您觉得我们的客户服务怎么样？",
         Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
-        Native: "Nhân viên rất nhiệt tình, thân thiện và phục vụ nhanh chóng.",
+        Native: "员工非常热情友好，服务也很迅速。",
         Translated: "Nhân viên rất nhiệt tình, thân thiện và phục vụ nhanh chóng."
       },
       {
         Response_ID: 1042,
         Question_ID: 3,
-        Question_Native: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Question_Native: "您愿意向其他人推荐我们吗？",
         Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
-        Native: "Chắc chắn rồi! Tôi sẽ giới thiệu nhà hàng này cho bạn bè.",
+        Native: "当然愿意！我会把这家餐厅推荐给我的朋友。",
         Translated: "Chắc chắn rồi! Tôi sẽ giới thiệu nhà hàng này cho bạn bè."
+      }
+    ]
+  },
+  {
+    Feedback_ID: 115,
+    Business_ID: 1,
+    Language: "Chinese (Simplified)",
+    Date: "2026-11-06T12:18:00",
+    voice: false,
+    Rating: 4,
+    Sentiment: "Positive",
+    Responses: [
+      {
+        Response_ID: 1043,
+        Question_ID: 1,
+        Question_Native: "您的整体体验如何？",
+        Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Native: "餐厅的气氛很好，菜品也很美味，尤其是甜点。",
+        Translated: "Không khí nhà hàng rất tuyệt và các món ăn rất ngon, đặc biệt là món tráng miệng."
+      },
+      {
+        Response_ID: 1044,
+        Question_ID: 2,
+        Question_Native: "您觉得我们的客户服务怎么样？",
+        Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Native: "服务员很有礼貌，不过上菜速度稍微慢了一点。",
+        Translated: "Nhân viên phục vụ rất lịch sự, nhưng tốc độ lên món hơi chậm."
+      },
+      {
+        Response_ID: 1045,
+        Question_ID: 3,
+        Question_Native: "您愿意向其他人推荐我们吗？",
+        Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Native: "愿意！我下次还想带家人一起来。",
+        Translated: "Có! Tôi muốn đưa gia đình quay lại vào lần tới."
+      }
+    ]
+  },
+  {
+    Feedback_ID: 116,
+    Business_ID: 1,
+    Language: "English",
+    Date: "2026-11-03T19:22:00",
+    voice: false,
+    Rating: 5,
+    Sentiment: "Positive",
+    Responses: [
+      {
+        Response_ID: 1046,
+        Question_ID: 1,
+        Question_Native: "How was your overall experience?",
+        Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Native: "The restaurant was spotless, and every dish was flavorful and well presented.",
+        Translated: "Nhà hàng rất sạch sẽ, và món ăn nào cũng đậm đà, được trình bày đẹp mắt."
+      },
+      {
+        Response_ID: 1047,
+        Question_ID: 2,
+        Question_Native: "How was the customer service?",
+        Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Native: "Our server was attentive without making us feel rushed.",
+        Translated: "Nhân viên phục vụ rất chu đáo mà không khiến chúng tôi cảm thấy vội vàng."
+      },
+      {
+        Response_ID: 1048,
+        Question_ID: 3,
+        Question_Native: "Would you recommend us?",
+        Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Native: "Definitely. I would come back for a special occasion.",
+        Translated: "Chắc chắn rồi. Tôi sẽ quay lại vào một dịp đặc biệt."
+      }
+    ]
+  },
+  {
+    Feedback_ID: 117,
+    Business_ID: 1,
+    Language: "Spanish",
+    Date: "2026-11-02T13:41:00",
+    voice: true,
+    Rating: 4,
+    Sentiment: "Positive",
+    Responses: [
+      {
+        Response_ID: 1049,
+        Question_ID: 1,
+        Question_Native: "¿Cómo fue tu experiencia en general?",
+        Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Native: "La comida estaba deliciosa y el lugar tenía un ambiente muy agradable.",
+        Translated: "Đồ ăn rất ngon và nhà hàng có không khí rất dễ chịu."
+      },
+      {
+        Response_ID: 1050,
+        Question_ID: 2,
+        Question_Native: "¿Qué te pareció el servicio al cliente?",
+        Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Native: "El personal fue atento, aunque tuvimos que esperar un poco para pagar.",
+        Translated: "Nhân viên rất chu đáo, mặc dù chúng tôi phải chờ một chút để thanh toán."
+      },
+      {
+        Response_ID: 1051,
+        Question_ID: 3,
+        Question_Native: "¿Nos recomendarías?",
+        Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Native: "Sí, es un buen lugar para cenar con amigos.",
+        Translated: "Có, đây là một địa điểm tốt để ăn tối cùng bạn bè."
+      }
+    ]
+  },
+  {
+    Feedback_ID: 118,
+    Business_ID: 1,
+    Language: "Korean",
+    Date: "2026-11-01T18:03:00",
+    voice: false,
+    Rating: 2,
+    Sentiment: "Negative",
+    Responses: [
+      {
+        Response_ID: 1052,
+        Question_ID: 1,
+        Question_Native: "전반적인 경험은 어떠셨나요?",
+        Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Native: "음식이 기대보다 평범했고 식당도 조금 어수선했습니다.",
+        Translated: "Đồ ăn bình thường hơn mong đợi và nhà hàng cũng hơi lộn xộn."
+      },
+      {
+        Response_ID: 1053,
+        Question_ID: 2,
+        Question_Native: "고객 서비스는 어떠셨나요?",
+        Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Native: "직원에게 여러 번 요청해야 해서 불편했습니다.",
+        Translated: "Tôi cảm thấy bất tiện vì phải yêu cầu nhân viên nhiều lần."
+      },
+      {
+        Response_ID: 1054,
+        Question_ID: 3,
+        Question_Native: "저희를 다른 사람에게 추천하시겠습니까?",
+        Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Native: "아니요, 서비스가 개선되면 다시 생각해 보겠습니다.",
+        Translated: "Không, tôi sẽ cân nhắc lại nếu dịch vụ được cải thiện."
+      }
+    ]
+  },
+  {
+    Feedback_ID: 119,
+    Business_ID: 1,
+    Language: "Arabic",
+    Date: "2026-10-31T20:36:00",
+    voice: true,
+    Rating: 3,
+    Sentiment: "Neutral",
+    Responses: [
+      {
+        Response_ID: 1055,
+        Question_ID: 1,
+        Question_Native: "كيف كانت تجربتك بشكل عام؟",
+        Question_Translated: "Trải nghiệm tổng thể của bạn như thế nào?",
+        Native: "كان الطعام جيدًا، لكن حجم الحصص كان أصغر مما توقعت.",
+        Translated: "Đồ ăn ngon, nhưng khẩu phần nhỏ hơn tôi mong đợi."
+      },
+      {
+        Response_ID: 1056,
+        Question_ID: 2,
+        Question_Native: "كيف كانت خدمة العملاء؟",
+        Question_Translated: "Dịch vụ chăm sóc khách hàng như thế nào?",
+        Native: "كان الموظفون مهذبين، لكن الخدمة استغرقت وقتًا طويلًا.",
+        Translated: "Nhân viên lịch sự, nhưng dịch vụ mất khá nhiều thời gian."
+      },
+      {
+        Response_ID: 1057,
+        Question_ID: 3,
+        Question_Native: "هل تنصح الآخرين بزيارتنا؟",
+        Question_Translated: "Bạn có muốn giới thiệu chúng tôi cho người khác không?",
+        Native: "ربما، إذا تحسنت سرعة الخدمة.",
+        Translated: "Có thể, nếu tốc độ phục vụ được cải thiện."
       }
     ]
   }

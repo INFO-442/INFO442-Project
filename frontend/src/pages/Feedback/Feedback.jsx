@@ -44,27 +44,38 @@ function FeedbackPage() {
       f.Responses.some(response =>
         response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
   ));}
-  const sorted = [...filtered].sort(sortFuncs[sort])
+
+  const [page, setPage] = useState(1);
+  const sorted = filtered.sort(sortFuncs[sort])
+  const pageCount = Math.ceil(sorted.length / 10);
+  const displayedFeedbacks = sorted.slice((page - 1) * 10, page * 10);
 
   return (
     <div className={feedbackCSS.feedbackPage}>
       <h1>All Feedback</h1>
       <Filters {...filterProps}/>
-      <table className={feedbackCSS.table}>
-        <tr>
-          <th>Date</th>
-          <th>Rating</th>
-          <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
-          <th>Sentiment</th>
-        </tr>
-        {sorted.length > 0 && sorted.map((feedback) =>
-          (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
-        )}
-      </table>
+      <div className={feedbackCSS.tableDiv}>
+        <table className={feedbackCSS.table}>
+          <tr>
+            <th>Date</th>
+            <th>Rating</th>
+            <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
+            <th>Sentiment</th>
+          </tr>
+          {sorted.length > 0 && displayedFeedbacks.map((feedback) =>
+            (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
+          )}
+        </table>
+      </div>
       {sorted.length == 0 && <div className={feedbackCSS.noFeedback}>
         <span>No feedback matches your filters. </span>
         <button onClick={clearFilters}>Clear filters</button>
       </div> }
+      {sorted.length > 0 && <div className={feedbackCSS.tableFooter}>
+        {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>←Prev</button> : <span></span>}
+        <span>Page {page} of {pageCount}</span>
+        {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
+      </div>}
       {(fullFeedback && <FullResponse feedback={fullFeedback}/>)}
     </div>
   )
@@ -72,7 +83,7 @@ function FeedbackPage() {
 
 function Filters({search, rating, sentiment, sort, setSearch, setRating, setSentiment, setSort}) {
   return <div className={feedbackCSS.filterDiv}>
-        <input value={search} type="text" required minlength="2" size="40"
+        <input className={feedbackCSS.search} value={search} type="text" required minlength="2"
         placeholder='Search Feedback (e.g. "service")' onChange={(e) =>
         setSearch(e.target.value.toLocaleLowerCase())}/>
         <select value={rating} onChange={(e) => setRating(e.target.value)}>
@@ -141,9 +152,10 @@ function FullResponse({ feedback }) {
           <h4>Questions</h4>
           <h4>Answers</h4>
           {feedback.Responses.map((response, i) =>
-            (<><p>{response.Question_Translated}</p><p>{response.Translated}</p></> )
+            (<><p>{response.Question_Translated}</p><p>{response.Translated === "" ? "No answer." : response.Translated}</p></> )
           )}
         </div>
+        <p className={feedbackCSS.responseFooter}>Machine translation may not be perfect.</p>
       </dialog>
 }
 

@@ -2,10 +2,36 @@
   padding: 1rem;
 }
 
-.filterDiv {
-  padding: 1rem 0;
+.feedbackPage h1 {
+  margin: 0 0 0.8rem 0;
 }
 
+.filterDiv {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.search {
+  padding: 0.6em 0.5em;
+  border-radius: 5px;
+  flex-grow: 1;
+  font-size: 12pt;
+  border: 1px solid black;
+}
+.filterDiv > select {
+  border-radius: 5px;
+  font-size: 13pt;
+  padding: 0.1em 0.1em 0.1em 0.5em;
+  height: 2em;
+  margin-left: 1.5em;
+  background: none;
+}
+
+
+.tableDiv {
+  min-height: 580px;
+}
 .table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -38,6 +64,23 @@
   color: rgb(59, 59, 59);
 }
 
+.tableFooter {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  justify-items: center;
+  width: 200px;
+  margin: 1rem auto;
+}
+.tableFooter button{
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--text);
+}
+
 .feedbackUnder {
   font-size: 0.9em;
 }
@@ -54,9 +97,9 @@
 
 .fullResponse {
   width: 30em;
-  border: solid black 2px;
+  border: solid black 4px;
   border-radius: 10px;
-  padding: 1em;
+  padding: 1.2em 1.5em;
 }
 .fullResponse::backdrop {
   background: rgba(0, 0, 0, 0.5);
@@ -78,7 +121,7 @@
   align-items: center;
 }
 .fullResponse div {
-  margin-bottom: 0.8em;
+  margin-bottom: 0.6em;
 }
 .fullResponse .subheader span {
   margin-right: 1em;
@@ -98,8 +141,12 @@
   margin: 0;
 }
 .fullResponse > .grid p {
-  margin: 0 0 1em 0;
+  margin: 0 0 0.5em 0;
   padding: 1em;
   border: solid black 2px;
   border-radius: 10px;
+}
+.responseFooter {
+  margin: 0;
+  color: grey;
 }
