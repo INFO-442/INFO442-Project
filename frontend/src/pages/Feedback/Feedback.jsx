@@ -4,18 +4,36 @@ import { useState } from 'react'
 import { mockData } from './Feedback.mockdata.js'
 
 function FeedbackPage() {
+
   const sortFuncs = {
     new: (a, b) => b.Date.localeCompare(a.Date),
     old: (a, b) => a.Date.localeCompare(b.Date),
     high: (a, b) => b.Rating - a.Rating,
     low: (a, b) => a.Rating - b.Rating,
   }
+
   const [sort, setSort] = useState("new");
-  
+  const [rating, setRating] = useState("");
+  const [sentiment, setSentiment] = useState("");
+  const [search, setSearch] = useState("");
+
+  let filtered = mockData;
+  if (rating !== "") { filtered = filtered.filter(f => f.Rating == rating) }
+  if (sentiment !== "") { filtered = filtered.filter(f => f.Sentiment == sentiment) }
+  if (search !== "") { // Search may be too slow if load-tested, can switch to an inverted index method if needed
+    filtered = filtered.filter(f =>
+      f.Responses.some(response =>
+        response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+      )
+    );
+  }
+  const sorted = [...filtered].sort(sortFuncs[sort])
+
+
   return (
     <div className={feedbackCSS.feedbackPage}>
       <h1>All Feedback</h1>
-      <Filters setSort={setSort}/>
+      <Filters setSearch={setSearch} setRating={setRating} setSentiment={setSentiment} setSort={setSort}/>
       <table className={feedbackCSS.table}>
         <tr>
           <th>Date</th>
@@ -23,7 +41,7 @@ function FeedbackPage() {
           <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
           <th>Sentiment</th>
         </tr>
-        {[...mockData].sort(sortFuncs[sort]).map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
+        {sorted.map((feedback) => ( <TableRow key={feedback.id} feedback={feedback}/> ))}
       </table>
       <dialog id="full-response">
         <p>This dialog was opened using an invoker command.</p>
@@ -33,10 +51,11 @@ function FeedbackPage() {
   )
 }
 
-function Filters({setSort}) {
+function Filters({setSearch, setRating, setSentiment, setSort}) {
   return <div className={feedbackCSS.filterDiv}>
-        <input type="text" id="search" name="search" required minlength="2" size="40" />
-        <select name="rating" id="rating">
+        <input type="text" id="search" name="search" required minlength="2" size="40" 
+        placeholder='Search Feedback (e.g. "service")' onChange={(e) => setSearch(e.target.value.toLocaleLowerCase())}/>
+        <select name="rating" id="rating" onChange={(e) => setRating(e.target.value)}>
           <option value="">Rating: All</option>
           <option value="5">Rating: 5</option>
           <option value="4">Rating: 4</option>
@@ -44,11 +63,11 @@ function Filters({setSort}) {
           <option value="2">Rating: 2</option>
           <option value="1">Rating: 1</option>
         </select>
-        <select name="sentiment" id="sentiment">
+        <select name="sentiment" id="sentiment" onChange={(e) => setSentiment(e.target.value)}>
           <option value="">Sentiment: All</option>
-          <option value="positive">Sentiment: positive</option>
-          <option value="neutral">Sentiment: neutral</option>
-          <option value="negative">Sentiment: negative</option>
+          <option value="Positive">Sentiment: Positive</option>
+          <option value="Neutral">Sentiment: Neutral</option>
+          <option value="Negative">Sentiment: Negative</option>
         </select>
         <select name="sort" id="sort" onChange={(e) => setSort(e.target.value)}>
           <option value="new">Newest first</option>
