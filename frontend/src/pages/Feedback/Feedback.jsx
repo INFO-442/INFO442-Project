@@ -52,7 +52,7 @@ function FeedbackPage() {
 
   return (
     <div className={feedbackCSS.feedbackPage}>
-      <h1>All Feedback</h1>
+      <h1>All feedback</h1>
       <Filters {...filterProps}/>
       <div className={feedbackCSS.tableDiv}>
         <table className={feedbackCSS.table}>
@@ -66,12 +66,14 @@ function FeedbackPage() {
             (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
           )}
         </table>
+        {sorted.length == 0 && <div className={feedbackCSS.noFeedback}>
+          <span>No feedback matches your filters. </span>
+          <button onClick={clearFilters}>Clear filters</button>
+        </div> }
+      {sorted.length > 0 && pageCount == 1 &&
+      <div className={feedbackCSS.tableFooter}><span>Page {page} of {pageCount}</span></div>}
       </div>
-      {sorted.length == 0 && <div className={feedbackCSS.noFeedback}>
-        <span>No feedback matches your filters. </span>
-        <button onClick={clearFilters}>Clear filters</button>
-      </div> }
-      {sorted.length > 0 && <div className={feedbackCSS.tableFooter}>
+      {sorted.length > 0 && pageCount != 1 && <div className={feedbackCSS.tableFooter}>
         {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>←Prev</button> : <span></span>}
         <span>Page {page} of {pageCount}</span>
         {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
