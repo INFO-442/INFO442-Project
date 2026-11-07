@@ -96,13 +96,25 @@
 }
 
 .fullResponse {
-  width: 30em;
+  width: 28em;
   border: solid black 4px;
   border-radius: 10px;
   padding: 1.2em 1.5em;
 }
 .fullResponse::backdrop {
   background: rgba(0, 0, 0, 0.5);
+}
+.fullResponse .responseHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.fullResponse .subheader span {
+  margin-right: 1em;
+}
+.fullResponse .subheader span.rating {
+  margin-right: 3em;
+  font-size: 16pt;
 }
 .fullResponse h3 {
   margin: 0;
@@ -115,39 +127,40 @@
   font: inherit;
   margin: 0 0 0 auto;
 }
-.fullResponse div:first-of-type {
+.fullResponse .response {
+  display: flex;
+  flex-direction: column;
+}
+.fullResponse .response h4 {
+  margin: 1em 0 0.8em 0;
+}
+.fullResponse .responseAnswers {
   display: flex;
   flex-direction: row;
+}
+.fullResponse .responseAnswers > div {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
-.fullResponse div {
-  margin-bottom: 0.6em;
-}
-.fullResponse .subheader span {
-  margin-right: 1em;
-}
-.fullResponse .subheader span.rating {
-  margin-right: 3em;
-  font-size: 16pt;
-}
-.fullResponse > .grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: auto;
-  column-gap: 1em;
-  row-gap: 0.2em;
-}
-.fullResponse > .grid h4 {
+.fullResponse .responseAnswers p {
   margin: 0;
-}
-.fullResponse > .grid p {
-  margin: 0 0 0.5em 0;
-  padding: 1em;
+  padding: 0.8em;
   border: solid black 2px;
   border-radius: 10px;
+  max-width: 11.5em;
+  width: fit-content;
+
 }
+.fullResponse .responseAnswers span {
+  font-size: 10pt;
+  margin: 0.2em 1em 0 0;
+  color: rgba(0, 0, 0, 0.9);
+}
+
 .responseFooter {
-  margin: 0;
+  margin: 1em 0 0 0;
   color: grey;
 }
 

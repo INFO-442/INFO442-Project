@@ -11,7 +11,10 @@ const stars = {
     1: "★☆☆☆☆",
   }
 
+const preferredLanguage = "Tiếng Việt";
+
 function FeedbackPage() {
+
 
   const sortFuncs = {
     new: (a, b) => b.Date.localeCompare(a.Date),
@@ -65,7 +68,7 @@ function FeedbackPage() {
             <tr>
               <th>Date</th>
               <th>Rating</th>
-              <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
+              <th className={feedbackCSS.wideColumn} >Feedback (translated to {preferredLanguage})</th>
               <th>Sentiment</th>
             </tr>
             {filtered !== null && filtered.length > 0 && displayedFeedbacks.map((feedback) =>
@@ -151,7 +154,7 @@ function FullResponse({ feedback }) {
           month: "short", day: "numeric",
           hour: "numeric", minute: "2-digit" })
   return <dialog id="full-response" className={feedbackCSS.fullResponse}>
-        <div>
+        <div className={feedbackCSS.responseHeader}>
           <h3>Response · {dateText}</h3>
           <button commandfor="full-response" command="close">✕</button>
         </div>
@@ -160,11 +163,21 @@ function FullResponse({ feedback }) {
           <span className={feedbackCSS.sentiment}>{feedback.Sentiment}</span>
           {(feedback.voice && <span className={feedbackCSS.sentiment}>Submitted by voice</span>)}
         </div>
-        <div className={feedbackCSS.grid}>
-          <h4>Questions</h4>
-          <h4>Answers</h4>
+        <div>
           {feedback.Responses.map((response, i) =>
-            (<><p>{response.Question_Translated}</p><p>{response.Translated === "" ? "No answer." : response.Translated}</p></> )
+            (<div className={feedbackCSS.response}>
+              <h4>Q{i + 1}: {response.Question_Translated}</h4>
+              <div className={feedbackCSS.responseAnswers}>
+                <div>
+                  <p>{response.Translated === "" ? "No answer." : response.Translated}</p>
+                  <span>Translated ({preferredLanguage})</span>
+                </div>
+                <div>
+                  <p>{response.Native === "" ? "No answer." : response.Native}</p>
+                  <span>Original ({feedback.Language})</span>
+                </div>
+              </div>
+            </div>)
           )}
         </div>
         <p className={feedbackCSS.responseFooter}>Machine translation may not be perfect.</p>
