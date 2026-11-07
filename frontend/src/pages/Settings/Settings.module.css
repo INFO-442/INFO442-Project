@@ -1,7 +1,161 @@
-.settingsPage {
-  margin: auto;
-  padding: 1rem 2rem;
-  border-radius: 0.75rem;
-  color: #92400e;
-  background-color: #fef3c7;
+.page {
+  padding: 1rem;
+  color: black;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.cardColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.sectionHeading {
+  margin: 1.5rem 0 1rem;
+}
+
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.page h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2rem;
+}
+
+.page h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.card {
+  margin-bottom: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border: 1px solid black;
+  border-radius: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+}
+
+.field:last-child {
+  margin-bottom: 0;
+}
+
+.input,
+.select {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+  color: black;
+  font: inherit;
+}
+
+.input:focus,
+.select:focus {
+  outline: 2px solid blue;
+  outline-offset: 1px;
+  border-color: black;
+}
+
+.saveRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.primary {
+  padding: 0.6rem 1.1rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  background: black;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary:hover {
+  border-color: dimgray;
+  background: dimgray;
+}
+
+.secondary {
+  padding: 0.5rem 1rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  background: white;
+  color: black;
+  font: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.secondary:hover {
+  background: whitesmoke;
+}
+
+.linkRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.linkRow .input {
+  flex: 1;
+}
+
+.qrRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+.qrPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+  border: 1px dashed gray;
+  border-radius: 10px;
+  color: gray;
+  font-size: 0.85rem;
+}
+
+.muted {
+  margin: 0.6rem 0 0;
+  color: dimgray;
+  font-size: 0.85rem;
+}
+
+.error {
+  color: firebrick;
+  font-size: 0.85rem;
+}
+
+.notice {
+  color: darkgreen;
+  font-size: 0.85rem;
 }

@@ -6,13 +6,6 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --bg: #16171d;
-  }
-}
-
 body {
   margin: 0;
   color: var(--text);
