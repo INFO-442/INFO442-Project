@@ -50,7 +50,10 @@ function FeedbackPage() {
     if (search !== "") { // Search may be too slow if load-tested, can switch to an inverted index method if needed
       filtered = filtered.filter(f =>
         f.Responses.some(response =>
-          response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+          {
+            return response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase()) ||
+                   response.Question_Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+          }
     ));}
     filtered.sort(sortFuncs[sort])
     pageCount = Math.ceil(filtered.length / 10);
