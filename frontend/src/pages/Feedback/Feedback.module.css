@@ -150,3 +150,18 @@
   margin: 0;
   color: grey;
 }
+
+.errorMessage {
+  border-radius: 12px;
+  border: 3px solid;
+  padding: 1em 0.5em;
+  width: 20em;
+  text-align: center;
+  margin: 2em auto;
+  border-color: red;
+  color: black;
+  background-color: rgba(255, 0, 0, 0.3);
+}
+.errorMessage {
+  color: darkred;
+}

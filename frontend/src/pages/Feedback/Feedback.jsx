@@ -26,6 +26,7 @@ function FeedbackPage() {
   const [rating, setRating] = useState("");
   const [sentiment, setSentiment] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   function clearFilters() {
     setSort("new");
@@ -37,48 +38,56 @@ function FeedbackPage() {
   const filterProps = { sort, rating, sentiment, search, setSort, setRating, setSentiment, setSearch };
 
   let filtered = mockData;
-  if (rating !== "") { filtered = filtered.filter(f => f.Rating == rating) }
-  if (sentiment !== "") { filtered = filtered.filter(f => f.Sentiment == sentiment) }
-  if (search !== "") { // Search may be too slow if load-tested, can switch to an inverted index method if needed
-    filtered = filtered.filter(f =>
-      f.Responses.some(response =>
-        response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-  ));}
+  let pageCount = 0;
+  let displayedFeedbacks = [];
+  if (filtered !== null && filtered.length === 0) filtered = undefined;
+  if (filtered !== null && filtered !== undefined) {
+    if (rating !== "") { filtered = filtered.filter(f => f.Rating == rating) }
+    if (sentiment !== "") { filtered = filtered.filter(f => f.Sentiment == sentiment) }
+    if (search !== "") { // Search may be too slow if load-tested, can switch to an inverted index method if needed
+      filtered = filtered.filter(f =>
+        f.Responses.some(response =>
+          response.Translated.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+    ));}
+    filtered.sort(sortFuncs[sort])
+    pageCount = Math.ceil(filtered.length / 10);
+    displayedFeedbacks = filtered.slice((page - 1) * 10, page * 10);
+  }
 
-  const [page, setPage] = useState(1);
-  const sorted = filtered.sort(sortFuncs[sort])
-  const pageCount = Math.ceil(sorted.length / 10);
-  const displayedFeedbacks = sorted.slice((page - 1) * 10, page * 10);
 
   return (
     <div className={feedbackCSS.feedbackPage}>
       <h1>All feedback</h1>
       <Filters {...filterProps}/>
-      <div className={feedbackCSS.tableDiv}>
-        <table className={feedbackCSS.table}>
-          <tr>
-            <th>Date</th>
-            <th>Rating</th>
-            <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
-            <th>Sentiment</th>
-          </tr>
-          {sorted.length > 0 && displayedFeedbacks.map((feedback) =>
-            (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
-          )}
-        </table>
-        {sorted.length == 0 && <div className={feedbackCSS.noFeedback}>
-          <span>No feedback matches your filters. </span>
-          <button onClick={clearFilters}>Clear filters</button>
-        </div> }
-      {sorted.length > 0 && pageCount == 1 &&
-      <div className={feedbackCSS.tableFooter}><span>Page {page} of {pageCount}</span></div>}
-      </div>
-      {sorted.length > 0 && pageCount != 1 && <div className={feedbackCSS.tableFooter}>
-        {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>←Prev</button> : <span></span>}
-        <span>Page {page} of {pageCount}</span>
-        {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
-      </div>}
-      {(fullFeedback && <FullResponse feedback={fullFeedback}/>)}
+      { (filtered !== null && filtered !== undefined) && <>
+        <div className={feedbackCSS.tableDiv}>
+          <table className={feedbackCSS.table}>
+            <tr>
+              <th>Date</th>
+              <th>Rating</th>
+              <th className={feedbackCSS.wideColumn} >Feedback (translated to Tiếng Việt)</th>
+              <th>Sentiment</th>
+            </tr>
+            {filtered !== null && filtered.length > 0 && displayedFeedbacks.map((feedback) =>
+              (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
+            )}
+          </table>
+          {filtered.length == 0 && <div className={feedbackCSS.noFeedback}>
+            <span>No feedback matches your filters. </span>
+            <button onClick={clearFilters}>Clear filters</button>
+          </div> }
+          {filtered.length > 0 && pageCount == 1 && <div className={feedbackCSS.tableFooter}><span>Page {page} of {pageCount}</span></div>}
+        </div>
+        {(filtered.length > 0 && pageCount != 1) &&
+          <div className={feedbackCSS.tableFooter}>
+            {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>←Prev</button> : <span></span>}
+            <span>Page {page} of {pageCount}</span>
+            {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
+          </div>}
+        {(fullFeedback && <FullResponse feedback={fullFeedback}/>)}
+      </>}
+      {filtered === null && <p className={feedbackCSS.errorMessage}>Error: Feedback could not be loaded.</p>}
+      {filtered === undefined && <p>There is no feedback yet for this business.</p>}
     </div>
   )
 }
@@ -122,12 +131,13 @@ function TableRow({ feedback, setFullFeedback }) {
 
 function Feedback({ setFullFeedback, feedback }) {
   const [translated, setTranslated] = useState(true);
-  const response = feedback.Responses[0];
+  const response = feedback.Responses.find((response) => response.Question_Type === "short_answer");
   const language = feedback.Language;
 
   return <>
-      <span>Q: {translated ? response.Question_Translated : response.Question_Native} →
-      "{translated ? response.Translated.substring(0, 10) : response.Native.substring(0, 10)}..."</span>
+      {response ? <span>Q: {translated ? response.Question_Translated : response.Question_Native} →
+          "{translated ? response.Translated.substring(0, 10) : response.Native.substring(0, 10)}..."</span>
+        : <span>No written comments.</span>}
       <div className={feedbackCSS.feedbackUnder}>
         <span>Original: {language} </span>
         <button onClick={() => setTranslated(!translated)} >Show {translated ? "original" : "translated"}</button>
