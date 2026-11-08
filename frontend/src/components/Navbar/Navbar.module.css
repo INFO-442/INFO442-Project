@@ -1,7 +1,46 @@
 .navbar {
-  background-color: red;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 12px 24px;
+  background: #f2f2f2;
+  border-bottom: 2px solid black;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 .navbar a {
-  font-size: 2rem;
+  color: black;
+  text-underline-offset: 4px;
+}
+
+.navbar :global(a.active) {
+  font-weight: 700;
+  text-decoration-thickness: 3px;
+}
+
+.brand {
+  padding: 6px 14px;
+  border: 2px solid black;
+  font-weight: 700;
+  color: black;
+  text-decoration: none;
+}
+
+.logout {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: black;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
 }
