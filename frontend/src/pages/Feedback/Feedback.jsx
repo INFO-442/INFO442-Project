@@ -62,7 +62,7 @@ function FeedbackPage() {
 
 
   return (
-    <div className={feedbackCSS.feedbackPage}>
+    <main className={feedbackCSS.page}>
       <h1>All feedback</h1>
       <Filters {...filterProps}/>
       { (filtered !== null && filtered !== undefined) && <>
@@ -94,7 +94,7 @@ function FeedbackPage() {
       </>}
       {filtered === null && <p className={feedbackCSS.errorMessage}>Error: Feedback could not be loaded.</p>}
       {filtered === undefined && <p>There is no feedback yet for this business.</p>}
-    </div>
+    </main>
   )
 }
 
