@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserRouter, Navigate, Outlet, useParams } from "react-router";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext.jsx";
 
 import Navbar from "@/components/Navbar/Navbar.jsx";
 import Footer from "@/components/Footer/Footer.jsx";
@@ -13,6 +14,10 @@ import SignupPage from "@/pages/Signup/Signup.jsx";
 import CustomerPage from "@/pages/Customer/Customer.jsx";
 
 function OwnerLayout() {
+  const { session, loading } = useAuth();
+  if (loading) return null;
+  if (!session) return <Navigate to="/login" replace />;
+
   return (
     <>
       <Navbar type="owner" />
@@ -23,6 +28,10 @@ function OwnerLayout() {
 }
 
 function GuestLayout() {
+  const { session, loading } = useAuth();
+  if (loading) return null;
+  if (session) return <Navigate to="/" replace />;
+
   return (
     <>
       <Navbar type="guest" />

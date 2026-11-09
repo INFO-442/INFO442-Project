@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext.jsx";
 import { LANGUAGES } from "@/i18n/translations";
 import styles from "./LanguageSelector.module.css";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext.jsx";
 
 function LanguageSelector() {
   const { t, language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
   const selectorRef = useRef(null);
+  const { session } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -29,10 +32,16 @@ function LanguageSelector() {
 
   const current = LANGUAGES.find((lang) => lang.code === language);
 
-  function chooseLanguage(code) {
+  async function chooseLanguage(code) {
     setLanguage(code);
     setOpen(false);
-  }
+    if (session) {
+        await supabase
+        .from("restaurants")
+        .update({ interface_language: code })
+        .eq("owner_id", session.user.id);
+        }
+    }
 
   return (
     <div className={styles.selector} ref={selectorRef}>
