@@ -1,0 +1,52 @@
+.selector {
+  position: relative;
+}
+
+.toggle {
+  padding: 4px 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-end: 0;
+  z-index: 10;
+  min-width: 180px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  border: 2px solid black;
+  border-radius: 10px;
+  background: white;
+}
+
+.menu button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.menu button:hover {
+  background: #f2f2f2;
+}
+
+.menu .selected {
+  font-weight: 700;
+}
+
+.check {
+  width: 1em;
+}

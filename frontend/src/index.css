@@ -11,3 +11,13 @@ body {
   color: var(--text);
   background-color: var(--bg);
 }
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
+}
