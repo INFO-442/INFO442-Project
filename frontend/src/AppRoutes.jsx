@@ -12,6 +12,7 @@ import SettingsPage from "@/pages/Settings/Settings.jsx";
 import LoginPage from "@/pages/Login/Login.jsx";
 import SignupPage from "@/pages/Signup/Signup.jsx";
 import CustomerPage from "@/pages/Customer/Customer.jsx";
+import { demoRestaurant } from "@/pages/Customer/demoRestaurant.js";
 
 function OwnerLayout() {
   const { session, loading } = useAuth();
@@ -51,7 +52,11 @@ function CustomerLayout() {
       .select("name")
       .eq("slug", business)
       .maybeSingle()
-      .then(({ data }) => setRestaurantName(data?.name ?? ""));
+      .then(({ data }) =>
+        setRestaurantName(
+          data?.name ?? (business === demoRestaurant.slug ? demoRestaurant.name : ""),
+        ),
+      );
   }, [business]);
 
   return (
@@ -81,7 +86,7 @@ const AppRoutes = createBrowserRouter([
     ],
   },
   {
-    path: "/c/:business",
+    path: "/f/:business",
     element: <CustomerLayout />,
     children: [{ index: true, element: <CustomerPage /> }],
   },
