@@ -1,6 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap");
 :root {
-  --text: #6b6375;
-  --bg: #fff;
+  --font-body: "Inter", Arial, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
+  --color-primary: #c2410c;
+  --color-primary-hover: #9a3412;
+  --color-secondary: #f59e0b;
+  --color-success: #15803d;
+  --color-error: #b91c1c;
+  --text: #1f2937;
+  --bg: #fffbf5;
   @media (max-width: 1024px) {
     font-size: 16px;
   }
