@@ -15,25 +15,23 @@ const initialRestaurant = {
 
 const maxRestaurantNameLength = 80
 
-const storageKey = "wingman.settings"
-
-const languages = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-  { code: "vi", label: "Tiếng Việt" },
-  { code: "zh", label: "中文（简体）" },
-  { code: "ko", label: "한국어" },
-  { code: "tr", label: "Türkçe" },
-  { code: "am", label: "አማርኛ" },
-  { code: "ar", label: "العربية" },
-]
+const languages = {
+  en: "English",
+  es: "Español",
+  vi: "Tiếng Việt",
+  zh: "中文（简体）",
+  ko: "한국어",
+  tr: "Türkçe",
+  am: "አማርኛ",
+  ar: "العربية",
+}
 
 function SettingsPage() {
   const { session } = useAuth();
   const userId = session.user.id;
 
   const [restaurant, setRestaurant] = useState(initialRestaurant)
-  const [form, setForm] = useState(initialRestaurant)
+  const [form, setForm] = useState(restaurant)
 
   useEffect(() => {
     if (!userId) return;
@@ -45,7 +43,6 @@ function SettingsPage() {
       .single()
       .then(({ data }) => {
         data.email = session.user.email;
-        console.log(data)
         setRestaurant(data);
         setForm(data);
       });
@@ -93,16 +90,30 @@ function SettingsPage() {
       setError("Restaurant name must be 80 characters or less.")
       return
     }
+    if (!(form.feedback_language in languages)) {
+      setError("Couldn't save settings. Try again.")
+      return
+    }
 
     setError("")
-    const next = { ...restaurant, ...form, name }
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next))
-      setRestaurant(next)
-      setNotice("✓ Settings saved.")
-    } catch {
-      setError("Couldn't save settings. Try again.")
-    }
+    supabase
+      .from("restaurants")
+      .update({
+        name: name,
+        address: form.address,
+        cuisine: form.cuisine,
+        feedback_language: form.feedback_language,
+      })
+      .eq("owner_id", userId)
+      .then(({ error }) => {
+        if (error) {
+          setError("Couldn't save settings. Try again.");
+          return;
+        }
+        setRestaurant({ ...restaurant, ...form, name })
+        setNotice("✓ Settings saved.")
+      })
+
   }
 
   async function handleCopy() {
@@ -180,9 +191,9 @@ function SettingsPage() {
                 value={form.feedback_language}
                 onChange={handleChange}
               >
-                {languages.map((language) => (
-                  <option key={language.code} value={language.code}>
-                    {language.label}
+                {Object.entries(languages).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
                   </option>
                 ))}
               </select>
