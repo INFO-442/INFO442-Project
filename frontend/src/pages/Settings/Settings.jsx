@@ -1,28 +1,21 @@
 import { useEffect, useState } from "react"
 import QRCode from "qrcode"
 import settingsCSS from "./Settings.module.css"
+import { useAuth } from "@/context/AuthContext.jsx"
+import { supabase } from "@/lib/supabase";
 
 const initialRestaurant = {
-  name: "Pho Saigon",
-  slug: "pho-saigon",
-  address: "123 Jackson St, Seattle, WA",
-  cuisine: "Vietnamese",
-  feedbackLanguage: "en",
-  email: "owner@phosaigon.com",
+  name: "",
+  slug: "",
+  address: "",
+  cuisine: "",
+  feedback_language: "",
+  email: "",
 }
 
 const maxRestaurantNameLength = 80
 
 const storageKey = "wingman.settings"
-
-function loadRestaurant() {
-  try {
-    const raw = localStorage.getItem(storageKey)
-    return raw ? { ...initialRestaurant, ...JSON.parse(raw) } : initialRestaurant
-  } catch {
-    return initialRestaurant
-  }
-}
 
 const languages = [
   { code: "en", label: "English" },
@@ -36,8 +29,28 @@ const languages = [
 ]
 
 function SettingsPage() {
-  const [restaurant, setRestaurant] = useState(loadRestaurant)
-  const [form, setForm] = useState(restaurant)
+  const { session } = useAuth();
+  const userId = session.user.id;
+
+  const [restaurant, setRestaurant] = useState(initialRestaurant)
+  const [form, setForm] = useState(initialRestaurant)
+
+  useEffect(() => {
+    if (!userId) return;
+
+    supabase
+      .from("restaurants")
+      .select()
+      .eq("owner_id", userId)
+      .single()
+      .then(({ data }) => {
+        data.email = session.user.email;
+        console.log(data)
+        setRestaurant(data);
+        setForm(data);
+      });
+  }, [userId]);
+
   const [error, setError] = useState("")
   const [notice, setNotice] = useState("")
   const [copyState, setCopyState] = useState("")
@@ -162,9 +175,9 @@ function SettingsPage() {
             <label className={settingsCSS.field}>
               Translate customer feedback into
               <select
-                name="feedbackLanguage"
+                name="feedback_language"
                 className={settingsCSS.select}
-                value={form.feedbackLanguage}
+                value={form.feedback_language}
                 onChange={handleChange}
               >
                 {languages.map((language) => (
