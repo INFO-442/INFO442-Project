@@ -1,43 +1,53 @@
 import { useEffect, useState } from "react"
 import QRCode from "qrcode"
 import settingsCSS from "./Settings.module.css"
+import { useAuth } from "@/context/AuthContext.jsx"
+import { supabase } from "@/lib/supabase";
 
 const initialRestaurant = {
-  name: "Pho Saigon",
-  slug: "pho-saigon",
-  address: "123 Jackson St, Seattle, WA",
-  cuisine: "Vietnamese",
-  feedbackLanguage: "en",
-  email: "owner@phosaigon.com",
+  name: "",
+  slug: "",
+  address: "",
+  cuisine: "",
+  feedback_language: "",
+  email: "",
 }
 
 const maxRestaurantNameLength = 80
 
-const storageKey = "wingman.settings"
-
-function loadRestaurant() {
-  try {
-    const raw = localStorage.getItem(storageKey)
-    return raw ? { ...initialRestaurant, ...JSON.parse(raw) } : initialRestaurant
-  } catch {
-    return initialRestaurant
-  }
+const languages = {
+  en: "English",
+  es: "Español",
+  vi: "Tiếng Việt",
+  zh: "中文（简体）",
+  ko: "한국어",
+  tr: "Türkçe",
+  am: "አማርኛ",
+  ar: "العربية",
 }
 
-const languages = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-  { code: "vi", label: "Tiếng Việt" },
-  { code: "zh", label: "中文（简体）" },
-  { code: "ko", label: "한국어" },
-  { code: "tr", label: "Türkçe" },
-  { code: "am", label: "አማርኛ" },
-  { code: "ar", label: "العربية" },
-]
-
 function SettingsPage() {
-  const [restaurant, setRestaurant] = useState(loadRestaurant)
+  const { session } = useAuth();
+  const userId = session.user.id;
+
+  const [restaurant, setRestaurant] = useState(initialRestaurant)
   const [form, setForm] = useState(restaurant)
+
+  useEffect(() => {
+    if (!userId) return;
+
+    supabase
+      .from("restaurants")
+      .select()
+      .eq("owner_id", userId)
+      .single()
+      .then(({ data }) => {
+        data.email = session.user.email;
+        setRestaurant(data);
+        setForm(data);
+      });
+  }, [userId]);
+
   const [error, setError] = useState("")
   const [notice, setNotice] = useState("")
   const [copyState, setCopyState] = useState("")
@@ -80,16 +90,30 @@ function SettingsPage() {
       setError("Restaurant name must be 80 characters or less.")
       return
     }
+    if (!(form.feedback_language in languages)) {
+      setError("Couldn't save settings. Try again.")
+      return
+    }
 
     setError("")
-    const next = { ...restaurant, ...form, name }
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next))
-      setRestaurant(next)
-      setNotice("✓ Settings saved.")
-    } catch {
-      setError("Couldn't save settings. Try again.")
-    }
+    supabase
+      .from("restaurants")
+      .update({
+        name: name,
+        address: form.address,
+        cuisine: form.cuisine,
+        feedback_language: form.feedback_language,
+      })
+      .eq("owner_id", userId)
+      .then(({ error }) => {
+        if (error) {
+          setError("Couldn't save settings. Try again.");
+          return;
+        }
+        setRestaurant({ ...restaurant, ...form, name })
+        setNotice("✓ Settings saved.")
+      })
+
   }
 
   async function handleCopy() {
@@ -162,14 +186,14 @@ function SettingsPage() {
             <label className={settingsCSS.field}>
               Translate customer feedback into
               <select
-                name="feedbackLanguage"
+                name="feedback_language"
                 className={settingsCSS.select}
-                value={form.feedbackLanguage}
+                value={form.feedback_language}
                 onChange={handleChange}
               >
-                {languages.map((language) => (
-                  <option key={language.code} value={language.code}>
-                    {language.label}
+                {Object.entries(languages).map(([code, label]) => (
+                  <option key={code} value={code}>
+                    {label}
                   </option>
                 ))}
               </select>
