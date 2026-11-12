@@ -52,6 +52,7 @@ export const translations = {
     "error.generic": "Something went wrong. Please try again.",
 
     "customer.title": "How was your visit?",
+    "customer.shortAnswer": "Type here...",
     "customer.rating": "Overall rating",
     "customer.yes": "Yes",
     "customer.no": "No",
@@ -63,6 +64,9 @@ export const translations = {
     "customer.another": "Submit another response",
     "customer.sendError": "Couldn't send. Check your connection and try again.",
     "customer.invalid": "This feedback link isn't valid. Please ask the restaurant for a new one.",
+    "customer.voice": "Listening... (English) — tap STOP to finish",
+    "customer.stop": "STOP",
+    "customer.rec": "REC",
   },
   es: {
     "nav.dashboard": "Panel",
@@ -106,6 +110,7 @@ export const translations = {
     "error.generic": "Algo salió mal. Inténtalo de nuevo.",
 
     "customer.title": "¿Cómo fue su visita?",
+    "customer.shortAnswer": "Escriba aquí...",
     "customer.rating": "Calificación general",
     "customer.yes": "Sí",
     "customer.no": "No",
@@ -117,6 +122,9 @@ export const translations = {
     "customer.another": "Enviar otra respuesta",
     "customer.sendError": "No se pudo enviar. Revise su conexión e inténtelo de nuevo.",
     "customer.invalid": "Este enlace de comentarios no es válido. Pida al restaurante uno nuevo.",
+    "customer.voice": "Escuchando... (Español) — toque DETENER para terminar",
+    "customer.stop": "STOP",
+    "customer.rec": "GRAB",
   },
   vi: {
     "nav.dashboard": "Bảng điều khiển",
@@ -160,6 +168,7 @@ export const translations = {
     "error.generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
 
     "customer.title": "Buổi ghé thăm của bạn thế nào?",
+    "customer.shortAnswer": "Nhập tại đây...",
     "customer.rating": "Đánh giá chung",
     "customer.yes": "Có",
     "customer.no": "Không",
@@ -171,6 +180,9 @@ export const translations = {
     "customer.another": "Gửi thêm phản hồi",
     "customer.sendError": "Không gửi được. Kiểm tra kết nối và thử lại.",
     "customer.invalid": "Đường dẫn phản hồi này không hợp lệ. Vui lòng xin nhà hàng một đường dẫn mới.",
+    "customer.voice": "Đang nghe... (Tiếng Việt) — chạm DỪNG để kết thúc",
+    "customer.stop": "DỪNG",
+    "customer.rec": "GHI",
   },
   zh: {
     "nav.dashboard": "仪表板",
@@ -214,6 +226,7 @@ export const translations = {
     "error.generic": "出了点问题，请重试。",
 
     "customer.title": "这次用餐体验怎么样？",
+    "customer.shortAnswer": "请在此输入...",
     "customer.rating": "总体评分",
     "customer.yes": "是",
     "customer.no": "否",
@@ -225,6 +238,9 @@ export const translations = {
     "customer.another": "再提交一条反馈",
     "customer.sendError": "发送失败，请检查网络后重试。",
     "customer.invalid": "此反馈链接无效，请向餐厅索取新链接。",
+    "customer.voice": "正在聆听……（中文）— 点击“停止”结束",
+    "customer.stop": "停止",
+    "customer.rec": "录音",
   },
   ko: {
     "nav.dashboard": "대시보드",
@@ -268,6 +284,7 @@ export const translations = {
     "error.generic": "문제가 발생했습니다. 다시 시도해 주세요.",
 
     "customer.title": "방문은 어떠셨나요?",
+    "customer.shortAnswer": "여기에 입력하세요...",
     "customer.rating": "전체 만족도",
     "customer.yes": "예",
     "customer.no": "아니요",
@@ -279,6 +296,9 @@ export const translations = {
     "customer.another": "다른 의견 보내기",
     "customer.sendError": "전송하지 못했습니다. 연결을 확인하고 다시 시도해 주세요.",
     "customer.invalid": "유효하지 않은 피드백 링크입니다. 식당에 새 링크를 요청해 주세요.",
+    "customer.voice": "듣는 중... (한국어) — 끝내려면 중지를 누르세요",
+    "customer.stop": "중지",
+    "customer.rec": "녹음",
   },
   tr: {
     "nav.dashboard": "Panel",
@@ -322,6 +342,7 @@ export const translations = {
     "error.generic": "Bir şeyler ters gitti. Lütfen tekrar deneyin.",
 
     "customer.title": "Ziyaretiniz nasıldı?",
+    "customer.shortAnswer": "Buraya yazın...",
     "customer.rating": "Genel puan",
     "customer.yes": "Evet",
     "customer.no": "Hayır",
@@ -333,6 +354,9 @@ export const translations = {
     "customer.another": "Başka bir yanıt gönder",
     "customer.sendError": "Gönderilemedi. Bağlantınızı kontrol edip tekrar deneyin.",
     "customer.invalid": "Bu geri bildirim bağlantısı geçersiz. Lütfen restorandan yeni bir bağlantı isteyin.",
+    "customer.voice": "Dinleniyor... (Türkçe) — bitirmek için DUR'a dokunun",
+    "customer.stop": "DUR",
+    "customer.rec": "KAYIT",
   },
   am: {
     "nav.dashboard": "ዳሽቦርድ",
@@ -376,6 +400,7 @@ export const translations = {
     "error.generic": "የሆነ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።",
 
     "customer.title": "ጉብኝትዎ እንዴት ነበር?",
+    "customer.shortAnswer": "እዚህ ይጻፉ...",
     "customer.rating": "አጠቃላይ ደረጃ",
     "customer.yes": "አዎ",
     "customer.no": "አይ",
@@ -387,6 +412,9 @@ export const translations = {
     "customer.another": "ሌላ ምላሽ ላክ",
     "customer.sendError": "መላክ አልተቻለም። ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ።",
     "customer.invalid": "ይህ የአስተያየት አገናኝ ትክክል አይደለም። እባክዎ ከምግብ ቤቱ አዲስ አገናኝ ይጠይቁ።",
+    "customer.voice": "በማዳመጥ ላይ... (አማርኛ) — ለመጨረስ አቁም ይንኩ",
+    "customer.stop": "አቁም",
+    "customer.rec": "ቅረጽ",
   },
   ar: {
     "nav.dashboard": "لوحة التحكم",
@@ -430,6 +458,7 @@ export const translations = {
     "error.generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
 
     "customer.title": "كيف كانت زيارتك؟",
+    "customer.shortAnswer": "اكتب هنا...",
     "customer.rating": "التقييم العام",
     "customer.yes": "نعم",
     "customer.no": "لا",
@@ -441,5 +470,8 @@ export const translations = {
     "customer.another": "إرسال رد آخر",
     "customer.sendError": "تعذّر الإرسال. تحقق من اتصالك وحاول مرة أخرى.",
     "customer.invalid": "رابط الملاحظات هذا غير صالح. يرجى طلب رابط جديد من المطعم.",
+    "customer.voice": "جارٍ الاستماع... (العربية) — اضغط على إيقاف للإنهاء",
+    "customer.stop": "إيقاف",
+    "customer.rec": "تسجيل",
   },
 };

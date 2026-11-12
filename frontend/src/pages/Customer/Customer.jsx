@@ -96,19 +96,29 @@ function CustomerPage() {
     interimTranscript,
     finalTranscript,
     resetTranscript,
-    browserSupportsSpeechRecognition
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable
   } = useSpeechRecognition();
 
-  function handleVoice(questionID) {
-    if (listening) {
-      SpeechRecognition.stopListening();
-      setVoiceQID(null);
+
+  async function handleVoice(questionID) {
+    if (listening && voiceQID === questionID) {
+      await SpeechRecognition.stopListening();
+      if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
       resetTranscript();
+      setVoiceQID(null);
     } else {
-      SpeechRecognition.startListening({ continuous: true, language: language })
+      if (listening) {
+        await SpeechRecognition.stopListening();
+        if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
+        resetTranscript();
+      }
+
+      await SpeechRecognition.startListening({ continuous: true, language });
       setVoiceQID(questionID);
     }
   }
+
 
   useEffect(() => {
   if (finalTranscript) {
@@ -116,6 +126,13 @@ function CustomerPage() {
     resetTranscript();
   }
   }, [finalTranscript])
+
+  useEffect(() => {
+  if (!isMicrophoneAvailable) {
+    SpeechRecognition.stopListening();
+    setVoiceQID(null);
+  }
+}, [isMicrophoneAvailable]);
 
   if (submitted) {
     return (
@@ -187,8 +204,10 @@ function CustomerPage() {
                   className={customerCSS.textarea}
                   rows={3}
                   maxLength={maxAnswerLength}
+                  placeholder={t("customer.shortAnswer")}
                   disabled={voiceQID === question.id && interimTranscript !== ""}
-                  value={(answers[question.id] ?? "") + ((voiceQID === question.id) ? interimTranscript : "")}
+                  value={(answers[question.id] ?? "") +
+                        ((voiceQID === question.id  && interimTranscript !== "") ? interimTranscript + "..." : "")}
                   onChange={(event) => setAnswer(question.id, event.target.value)}
                 />
                 {(answers[question.id]?.length ?? 0) >= counterFrom && (
@@ -197,11 +216,13 @@ function CustomerPage() {
                   </p>
                 )}
                 </div>
-                <button type="button" className={`${customerCSS.voice_button} ${voiceQID === question.id ? customerCSS.listening : ""}`}
-                onClick={() => handleVoice(question.id)}>{voiceQID === question.id ? "STOP" : "MIC"}</button>
+                <button type="button" disabled={!isMicrophoneAvailable} className={`${customerCSS.voice_button}
+                ${voiceQID === question.id ? customerCSS.listening : ""}`} onClick={() => handleVoice(question.id)}>
+                  {voiceQID === question.id ? t("customer.stop") : t("customer.rec")}
+                </button>
               </div>
-              <p>{language} | {listening ? "Listening" : "Stopped"}</p>
-              {voiceQID === question.id && <p className={customerCSS.stop_text}>● Escuchando... (Español) — toque STOP para terminar</p>}
+              {browserSupportsSpeechRecognition && voiceQID === question.id &&
+              <p className={customerCSS.stop_text}>● {t("customer.voice")}</p>}
               </>
             )}
 
