@@ -48,15 +48,9 @@ function CustomerLayout() {
 
   useEffect(() => {
     supabase
-      .from("restaurants")
-      .select("name")
-      .eq("slug", business)
-      .maybeSingle()
-      .then(({ data }) =>
-        setRestaurantName(
-          data?.name ?? (business === demoRestaurant.slug ? demoRestaurant.name : ""),
-        ),
-      );
+    .rpc("get_restaurant_by_slug", { p_slug: business })
+    .maybeSingle()
+    .then(({ data }) => setRestaurantName(data?.name ?? ""));
   }, [business]);
 
   return (
