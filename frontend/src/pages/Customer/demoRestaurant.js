@@ -15,9 +15,25 @@ export const demoRestaurant = {
         am: "ምግቡ እንዴት ነበር?",
         ar: "كيف كان الطعام؟",
       },
+      length: 1000
     },
     {
       id: "q2",
+      answerType: "short_answer",
+      text: {
+        en: "How was the food?",
+        es: "¿Cómo estuvo la comida?",
+        vi: "Đồ ăn thế nào?",
+        zh: "菜品怎么样？",
+        ko: "음식은 어떠셨나요?",
+        tr: "Yemek nasıldı?",
+        am: "ምግቡ እንዴት ነበር?",
+        ar: "كيف كان الطعام؟",
+      },
+      length: 1000
+    },
+    {
+      id: "q3",
       answerType: "scale",
       text: {
         en: "How was the wait time?",
@@ -31,7 +47,7 @@ export const demoRestaurant = {
       },
     },
     {
-      id: "q3",
+      id: "q4",
       answerType: "yes_no",
       text: {
         en: "Would you come back?",

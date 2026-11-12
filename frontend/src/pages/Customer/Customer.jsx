@@ -1,8 +1,10 @@
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { useParams } from "react-router"
 import customerCSS from "./Customer.module.css"
 import { demoRestaurant } from "./demoRestaurant.js"
 import { useLanguage } from "@/i18n/LanguageContext.jsx"
+
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 const maxAnswerLength = 1000
 const counterFrom = 900
@@ -46,6 +48,9 @@ function CustomerPage() {
   function setAnswer(questionId, value) {
     setAnswers((current) => ({ ...current, [questionId]: value }))
   }
+  function appendAnswer(questionId, value) {
+    setAnswers((current) => ({ ...current, [questionId]: (questionId in current ? current[questionId] : "") + value }))
+  }
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -81,6 +86,53 @@ function CustomerPage() {
     setError("")
     setRatingError(false)
   }
+
+
+  const [voiceQID, setVoiceQID] = useState(null) // voice questionID
+
+  const {
+    transcript,
+    listening,
+    interimTranscript,
+    finalTranscript,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+    isMicrophoneAvailable
+  } = useSpeechRecognition();
+
+
+  async function handleVoice(questionID) {
+    if (listening && voiceQID === questionID) {
+      await SpeechRecognition.stopListening();
+      if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
+      resetTranscript();
+      setVoiceQID(null);
+    } else {
+      if (listening) {
+        await SpeechRecognition.stopListening();
+        if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
+        resetTranscript();
+      }
+
+      await SpeechRecognition.startListening({ continuous: true, language });
+      setVoiceQID(questionID);
+    }
+  }
+
+
+  useEffect(() => {
+  if (finalTranscript) {
+    appendAnswer(voiceQID, finalTranscript + ". ")
+    resetTranscript();
+  }
+  }, [finalTranscript])
+
+  useEffect(() => {
+  if (!isMicrophoneAvailable) {
+    SpeechRecognition.stopListening();
+    setVoiceQID(null);
+  }
+}, [isMicrophoneAvailable]);
 
   if (submitted) {
     return (
@@ -146,11 +198,16 @@ function CustomerPage() {
 
             {question.answerType === "short_answer" && (
               <>
+              <div className={customerCSS.short_answer}>
+                <div>
                 <textarea
                   className={customerCSS.textarea}
                   rows={3}
                   maxLength={maxAnswerLength}
-                  value={answers[question.id] ?? ""}
+                  placeholder={t("customer.shortAnswer")}
+                  disabled={voiceQID === question.id && interimTranscript !== ""}
+                  value={(answers[question.id] ?? "") +
+                        ((voiceQID === question.id  && interimTranscript !== "") ? interimTranscript + "..." : "")}
                   onChange={(event) => setAnswer(question.id, event.target.value)}
                 />
                 {(answers[question.id]?.length ?? 0) >= counterFrom && (
@@ -158,6 +215,14 @@ function CustomerPage() {
                     {answers[question.id].length} / {maxAnswerLength}
                   </p>
                 )}
+                </div>
+                <button type="button" disabled={!isMicrophoneAvailable} className={`${customerCSS.voice_button}
+                ${voiceQID === question.id ? customerCSS.listening : ""}`} onClick={() => handleVoice(question.id)}>
+                  {voiceQID === question.id ? t("customer.stop") : t("customer.rec")}
+                </button>
+              </div>
+              {browserSupportsSpeechRecognition && voiceQID === question.id &&
+              <p className={customerCSS.stop_text}>● {t("customer.voice")}</p>}
               </>
             )}
 
