@@ -68,15 +68,19 @@ function FeedbackPage() {
       { (filtered !== null && filtered !== undefined) && <>
         <div className={feedbackCSS.tableDiv}>
           <table className={feedbackCSS.table}>
-            <tr>
-              <th>Date</th>
-              <th>Rating</th>
-              <th className={feedbackCSS.wideColumn} >Feedback (translated to {preferredLanguage})</th>
-              <th>Sentiment</th>
-            </tr>
-            {filtered !== null && filtered.length > 0 && displayedFeedbacks.map((feedback) =>
-              (<TableRow key={feedback.id} feedback={feedback} setFullFeedback={setFullFeedback} /> )
-            )}
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Rating</th>
+                <th className={feedbackCSS.wideColumn} >Feedback (translated to {preferredLanguage})</th>
+                <th>Sentiment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered !== null && filtered.length > 0 && displayedFeedbacks.map((feedback) =>
+                (<TableRow key={feedback.Feedback_ID} feedback={feedback} setFullFeedback={setFullFeedback} /> )
+              )}
+            </tbody>
           </table>
           {filtered.length == 0 && <div className={feedbackCSS.noFeedback}>
             <span>No feedback matches your filters. </span>
@@ -100,7 +104,7 @@ function FeedbackPage() {
 
 function Filters({search, rating, sentiment, sort, setSearch, setRating, setSentiment, setSort}) {
   return <div className={feedbackCSS.filterDiv}>
-        <input className={feedbackCSS.search} value={search} type="text" required minlength="2"
+        <input className={feedbackCSS.search} value={search} type="text" required minLength="2"
         placeholder='Search Feedback (e.g. "service")' onChange={(e) =>
         setSearch(e.target.value.toLocaleLowerCase())}/>
         <select value={rating} onChange={(e) => setRating(e.target.value)}>
@@ -129,9 +133,12 @@ function Filters({search, rating, sentiment, sort, setSearch, setRating, setSent
 function TableRow({ feedback, setFullFeedback }) {
   return <tr>
     <td>{new Date(feedback.Date).toLocaleString("en-US", { month: "short", day: "numeric"})}</td>
-    <td>{stars[feedback.Rating]}</td>
+    <td><span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span></td>
     <td><Feedback setFullFeedback={setFullFeedback} feedback={feedback} /></td>
-    <td><span className={feedbackCSS.sentiment}>{feedback.Sentiment}</span></td>
+    <td><span className={`${feedbackCSS.sentiment} ${
+            feedback.Sentiment === "Positive" ? feedbackCSS.positive : feedback.Sentiment === "Negative"
+            ? feedbackCSS.negative : feedbackCSS.neutral}`}>
+            {feedback.Sentiment}</span></td>
   </tr>
 }
 
@@ -163,12 +170,18 @@ function FullResponse({ feedback }) {
         </div>
         <div className={feedbackCSS.subheader}>
           <span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span>
-          <span className={feedbackCSS.sentiment}>{feedback.Sentiment}</span>
+          <span className={`${feedbackCSS.sentiment} ${
+            (feedback.Sentiment === "Positive" ?
+            feedbackCSS.positive : feedback.Sentiment === "Negative")
+            ? feedbackCSS.negative : feedbackCSS.neutral
+          }`}>
+            {feedback.Sentiment}
+          </span>
           {(feedback.voice && <span className={feedbackCSS.sentiment}>Submitted by voice</span>)}
         </div>
         <div>
           {feedback.Responses.map((response, i) =>
-            (<div className={feedbackCSS.response}>
+            (<div key={response.Response_ID} className={feedbackCSS.response}>
               <h4>Q{i + 1}: {response.Question_Translated}</h4>
               <div className={feedbackCSS.responseAnswers}>
                 <div>
