@@ -129,9 +129,12 @@ function Filters({search, rating, sentiment, sort, setSearch, setRating, setSent
 function TableRow({ feedback, setFullFeedback }) {
   return <tr>
     <td>{new Date(feedback.Date).toLocaleString("en-US", { month: "short", day: "numeric"})}</td>
-    <td>{stars[feedback.Rating]}</td>
+    <td><span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span></td>
     <td><Feedback setFullFeedback={setFullFeedback} feedback={feedback} /></td>
-    <td><span className={feedbackCSS.sentiment}>{feedback.Sentiment}</span></td>
+    <td><span className={`${feedbackCSS.sentiment} ${
+            feedback.Sentiment === "Positive" ? feedbackCSS.positive : feedback.Sentiment === "Negative"
+            ? feedbackCSS.negative : feedbackCSS.neutral}`}>
+            {feedback.Sentiment}</span></td>
   </tr>
 }
 
@@ -163,7 +166,13 @@ function FullResponse({ feedback }) {
         </div>
         <div className={feedbackCSS.subheader}>
           <span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span>
-          <span className={feedbackCSS.sentiment}>{feedback.Sentiment}</span>
+          <span className={`${feedbackCSS.sentiment} ${
+            (feedback.Sentiment === "Positive" ?
+            feedbackCSS.positive : feedback.Sentiment === "Negative")
+            ? feedbackCSS.negative : feedbackCSS.neutral
+          }`}>
+            {feedback.Sentiment}
+          </span>
           {(feedback.voice && <span className={feedbackCSS.sentiment}>Submitted by voice</span>)}
         </div>
         <div>
