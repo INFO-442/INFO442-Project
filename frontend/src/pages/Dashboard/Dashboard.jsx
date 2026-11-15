@@ -4,7 +4,8 @@ import dashboardCSS from './Dashboard.module.css'
 import { useAuth } from "@/context/AuthContext.jsx"
 import { supabase } from "@/lib/supabase";
 import { LABELS } from '@/i18n/translations';
-import { computeStats, getFeedback, getResponseForEachFeedback } from './Dashboard.controller.js';
+import { computeStats, getFeedback, getPastFeedback,
+         getResponseForEachFeedback } from './Dashboard.controller.js';
 
 const stars = {
     5: "★★★★★",
@@ -42,8 +43,9 @@ function DashboardPage() {
 
     getFeedback(supabase, restaurant.id, timeRange)
       .then((res) => {
-        setStats(computeStats(res));
-        console.log(res);
+        getPastFeedback(supabase, restaurant.id, timeRange)
+          .then((pastRes) => { return computeStats(pastRes, res) })
+          .then(setStats)
         return getResponseForEachFeedback(supabase, res)
       })
       .then(setRecentFeedback);
@@ -66,8 +68,8 @@ function DashboardPage() {
         <div className={dashboardCSS.stats}>
           {stats && Object.entries(stats).map(([label, value]) => (
             <div key={label} className={dashboardCSS.statBox}>
-              <h2>{value}</h2>
-              <p>{label}</p>
+              <p>{value}</p>
+              <span>{label}</span>
             </div>
           ))}
         </div>

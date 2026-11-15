@@ -10,7 +10,8 @@
 
 
 .welcome {
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.5rem 0;
+  font-family: var(--font-heading);
 }
 .subheader {
   display: flex;
@@ -20,8 +21,18 @@
 .subheader span {
   margin: 0 auto 0 0;
 }
+.subheader label {
+  font-weight: bold;
+}
 .subheader select {
   margin: 0 0 0 0.25em;
+  border-radius: 5px;
+  border: 1px solid black;
+  font-size: 12pt;
+  padding: 0.1em 0 0.1em 0.5em;
+  height: 2em;
+  margin-right: 1.5em;
+  background: none;
 }
 
 .stats {
@@ -42,10 +53,12 @@
   align-items: center;
   justify-content: center;
 }
-.statBox h2  {
-  margin: 0 0 0 0;
-}
 .statBox p  {
+  margin: 0 0 0.2rem 0;
+  font-size: 20pt;
+  font-weight: bold;
+}
+.statBox span  {
   margin: 0;
   font-size: small;
 }
@@ -69,6 +82,7 @@
 }
 .f_header h3 {
   margin: 0;
+  font-family: var(--font-heading);
 }
 .feedback button {
   background: none;
@@ -87,7 +101,7 @@
 .feedbackRow > div {
   display: flex;
   align-items: center;
-  margin-bottom: 0.1em;
+  margin-bottom: 0.2em;
 }
 
 .rating {
