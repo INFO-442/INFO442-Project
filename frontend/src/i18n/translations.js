@@ -9,6 +9,17 @@ export const LANGUAGES = [
   { code: "ar", label: "العربية" },
 ];
 
+export const LABELS = {
+  en: "English",
+  es: "Español",
+  vi: "Tiếng Việt",
+  zh: "中文（简体）",
+  ko: "한국어",
+  tr: "Türkçe",
+  am: "አማርኛ",
+  ar: "العربية",
+}
+
 export const translations = {
   en: {
     "nav.dashboard": "Dashboard",
