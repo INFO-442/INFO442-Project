@@ -29,6 +29,7 @@ function DashboardPage() {
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
   const [copyState, setCopyState] = useState("")
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     if (!userId) return;
@@ -38,14 +39,17 @@ function DashboardPage() {
       .select()
       .eq("owner_id", userId)
       .single()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) throw Error;
         setRestaurant(data);
         const linkTemp = `${window.location.origin}/f/${data.slug}`;
         setLink(linkTemp);
         QRCode.toDataURL(linkTemp, { width: 200, margin: 1 })
           .then(setQrCode)
           .catch(() => setQrCode(""))
-      });
+      })
+      .catch(setError);
+
   }, [userId]);
 
   useEffect(() => {
@@ -58,9 +62,11 @@ function DashboardPage() {
             getPastFeedback(supabase, restaurant.id, timeRange)
               .then((pastRes) => { return computeStats(pastRes, res) })
               .then(setStats)
-                return getResponseForEachFeedback(supabase, res)
+              .catch(setError)
+            return getResponseForEachFeedback(supabase, res)
           })
-          .then(setRecentFeedback);
+          .then(setRecentFeedback)
+          .catch(setError);
       } else {
         setStats(null);
       }
@@ -76,6 +82,15 @@ function DashboardPage() {
     } catch {
       setCopyState("Couldn't copy. Please select the link and copy it manually.")
     }
+  }
+
+  if (error === true) {
+    return  <main className={dashboardCSS.page}>
+      <div className={dashboardCSS.error}>
+        <span>We couldn't load your feedback. Check your internet connection. </span>
+        <Link to={"/"} reloadDocument>Try again.</Link>
+      </div>
+    </main>
   }
 
   if (stats === undefined) {
@@ -164,6 +179,16 @@ function DashboardPage() {
 }
 
 function AISection() {
+  const [error, setError] = useState(true);
+  if (error) {
+    return <div className={dashboardCSS.ai}>
+        <div className={dashboardCSS.error}>
+        <span>Summary unavailable right now. Your feedback is safe — </span>
+        <Link to={"/"} reloadDocument>try again</Link>
+        <span> in a few minutes</span>
+      </div>
+    </div>
+  }
   return <div className={dashboardCSS.ai}><p>AI Section</p></div>
 }
 function RatingsSection() {
