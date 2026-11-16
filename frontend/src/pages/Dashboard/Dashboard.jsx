@@ -65,7 +65,7 @@ function DashboardPage() {
               .then((pastRes) => { return computeStats(pastRes, res) })
               .then(setStats)
               .catch(setError)
-            return getResponseForEachFeedback(supabase, res)
+            return getResponseForEachFeedback(supabase, res.slice(0, 3))
           })
           .then(setRecentFeedback)
           .catch(setError);
