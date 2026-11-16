@@ -1,3 +1,11 @@
+/**
+ * Calculates dashboard metrics from current and previous-period feedback.
+ * @param {Array<{rating: number, sentiment: string}>} pastData Feedback from the previous period.
+ * @param {Array<{rating: number, sentiment: string}>} feedbackData Feedback from the selected period.
+ * @returns {{avgRating: number|string, responses: number,
+ *          positiveSentiment: string, avgRatingVsPrevious: string}|null}
+ *          Metrics, "--" if feedbackData has no entries, or null if either input is missing.
+ */
 export const computeStats = function(pastData, feedbackData) {
   if (!feedbackData) return null;
   if (!pastData) return null;
@@ -43,6 +51,12 @@ export const computeStats = function(pastData, feedbackData) {
   }
 }
 
+/**
+ * Checks whether a restaurant has at least one feedback record.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query the database.
+ * @param {string} restaurant_id Restaurant UUID to check.
+ * @returns {Promise<boolean>} True if a feedback record exists; otherwise false.
+ */
 export const hasFeedback = async function(supabase, restaurant_id) {
   const { data, error } = await supabase
     .from("feedback")
@@ -54,6 +68,13 @@ export const hasFeedback = async function(supabase, restaurant_id) {
   return data !== null;
 }
 
+/**
+ * Fetches a restaurant's feedback for the selected number of days, newest first.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query the database.
+ * @param {string} restaurant_id Restaurant UUID whose feedback is fetched.
+ * @param {number|string} timeRange Number of days to include, or an empty string for all time.
+ * @returns {Promise<Array<Object>>} Matching feedback rows ordered by newest submitted date.
+ */
 export const getFeedback = async function(supabase, restaurant_id, timeRange) {
   let query = supabase
     .from("feedback")
@@ -71,6 +92,13 @@ export const getFeedback = async function(supabase, restaurant_id, timeRange) {
   return data;
 }
 
+/**
+ * Fetches feedback from the period immediately before the selected time range.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query the database.
+ * @param {string} restaurant_id Restaurant UUID whose feedback is fetched.
+ * @param {number|string} timeRange Length of each period in days.
+ * @returns {Promise<Array<Object>>} Feedback rows from the previous period.
+ */
 export const getPastFeedback = async function(supabase, restaurant_id, timeRange) {
   let query = supabase
     .from("feedback")
@@ -88,7 +116,18 @@ export const getPastFeedback = async function(supabase, restaurant_id, timeRange
   return data;
 }
 
+/**
+ * Adds the first available written response to each feedback row.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query responses.
+ * @param {Array<{id: string}>} feedbackData Feedback rows, each with a database ID.
+ * @returns {Promise<Array<Object>>} Feedback rows enriched with native_text, translated_text, and noWrittenComments.
+ */
 export const getResponseForEachFeedback = async (supabase, feedbackData) => {
+  /**
+   * Finds one non-null written response associated with a feedback row.
+   * @param {{id: string}} feedback Feedback row whose response is looked up.
+   * @returns {Promise<Object>} The feedback row enriched with response text or empty text when no response exists.
+   */
   async function getSingleResponse(feedback) {
       let query = supabase
         .from("responses")
