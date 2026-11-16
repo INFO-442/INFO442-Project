@@ -5,14 +5,131 @@
 .statBox, .graphics > div {
   border: solid black 1px;
   border-radius: 5px;
+  background-color: white;
 }
-
-
 
 .welcome {
   margin: 0 0 0.5rem 0;
   font-family: var(--font-heading);
 }
+
+.no_feedback {
+  border: 2px dashed black;
+  border-radius: 10px;
+  min-height: 27rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+.no_feedback > h2 {
+  margin: 1rem 0 0 0;
+  font-family: (--font-heading);
+}
+.no_feedback > p {
+  margin: 1rem 0 0.5rem 0;
+}
+
+.inputLink {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+  color: black;
+  font: inherit;
+  field-sizing: content;
+}
+
+.inputLink:focus {
+  outline: 2px solid blue;
+  outline-offset: 1px;
+  border-color: black;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.copy, .download {
+  padding: 0.5rem 1rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  color: black;
+  font: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.copy {
+  background: lightgray;
+  margin-right: 1em;
+}
+.copy:hover {
+  background: rgb(182, 182, 182)
+}
+.download {
+  background: white;
+}
+.download:hover {
+  background: whitesmoke;
+}
+
+.qrRow {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.qrImage {
+  width: 150px;
+  height: 150px;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+.qrPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 150px;
+  height: 150px;
+  border: 1px dashed gray;
+  border-radius: 10px;
+  color: gray;
+  font-size: 0.85rem;
+}
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.muted {
+  margin: 0.6rem 0 0;
+  color: dimgray;
+  font-size: 0.85rem;
+}
+
+.next_steps {
+  margin-top: 1rem;
+}
+
+.next_steps a {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+
+
+
 .subheader {
   display: flex;
   flex-direction: row;
@@ -32,7 +149,7 @@
   padding: 0.1em 0 0.1em 0.5em;
   height: 2em;
   margin-right: 1.5em;
-  background: none;
+  background: white;
 }
 
 .stats {
@@ -84,15 +201,11 @@
   margin: 0;
   font-family: var(--font-heading);
 }
-.feedback button {
-  background: none;
-  border: none;
-  padding: 0;
-  text-decoration: underline;
-  cursor: pointer;
-  font: inherit;
+.feedback a {
   margin: 0 0 0 1em;
   font-size: small;
+  color: var(--text);
+  text-decoration: underline;
 }
 
 .feedbackRow {

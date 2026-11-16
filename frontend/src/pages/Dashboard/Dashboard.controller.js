@@ -34,6 +34,17 @@ export const computeStats = function(pastData, feedbackData) {
   }
 }
 
+export const hasFeedback = async function(supabase, restaurant_id) {
+  const { data, error } = await supabase
+    .from("feedback")
+    .select()
+    .eq("restaurant_id", restaurant_id)
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data !== null;
+}
+
 export const getFeedback = async function(supabase, restaurant_id, timeRange) {
   let query = supabase
     .from("feedback")
