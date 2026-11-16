@@ -1,6 +1,15 @@
 export const computeStats = function(pastData, feedbackData) {
   if (!feedbackData) return null;
   if (!pastData) return null;
+
+  if (feedbackData.length === 0) {
+    return {
+      avgRating: "--",
+      responses: 0,
+      positiveSentiment: "--",
+      avgRatingVsPrevious: "--"
+    }
+  }
   
   let ratings = 0;
   let responses = 0;
@@ -29,7 +38,7 @@ export const computeStats = function(pastData, feedbackData) {
   return {
     avgRating,
     responses,
-    positiveSentiment: Number((pos / (pos + neg)).toFixed(2)) * 100 + "%",
+    positiveSentiment: Number((pos / responses).toFixed(2)) * 100 + "%",
     avgRatingVsPrevious: prevPeriodDiff
   }
 }
@@ -50,6 +59,7 @@ export const getFeedback = async function(supabase, restaurant_id, timeRange) {
     .from("feedback")
     .select()
     .eq("restaurant_id", restaurant_id)
+    .order("submitted_at", { ascending: false });
 
   if (timeRange !== "") {
     const pastDate = new Date()

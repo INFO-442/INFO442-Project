@@ -65,7 +65,7 @@ function DashboardPage() {
               .then((pastRes) => { return computeStats(pastRes, res) })
               .then(setStats)
               .catch(setError)
-            return getResponseForEachFeedback(supabase, res.slice(0, 3))
+            return getResponseForEachFeedback(supabase, res.slice(0, 5))
           })
           .then(setRecentFeedback)
           .catch(setError);
@@ -208,7 +208,7 @@ function FeedbackSection({ feedbackData }) {
   const { t } = useLanguage();
   return <div className={dashboardCSS.feedback}>
       <div className={dashboardCSS.f_header}><h3>{t("dashboard.recentFeedback")}</h3><Link to="/feedback">{t("dashboard.seeAll")}</Link></div>
-      {feedbackData && feedbackData.map((feedback) => {
+      {feedbackData && feedbackData.slice(0, 5).map((feedback) => {
         return <div className={dashboardCSS.feedbackRow} key={feedback.id}>
           <div>
             <span className={dashboardCSS.rating}>{stars[feedback.rating]}</span>
