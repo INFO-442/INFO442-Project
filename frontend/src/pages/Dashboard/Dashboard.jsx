@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 
 import dashboardCSS from './Dashboard.module.css'
 import { useAuth } from "@/context/AuthContext.jsx"
+import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { supabase } from "@/lib/supabase";
 import { LABELS } from '@/i18n/translations';
 import { computeStats, hasFeedback, getFeedback, getPastFeedback,
@@ -19,6 +20,7 @@ const stars = {
 
 function DashboardPage() {
   const { session } = useAuth();
+  const { t } = useLanguage();
   const userId = session.user.id;
 
   const [restaurant, setRestaurant] = useState(null);
@@ -78,41 +80,41 @@ function DashboardPage() {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(link)
-      setCopyState("Copied!")
+      setCopyState("copied")
     } catch {
-      setCopyState("Couldn't copy. Please select the link and copy it manually.")
+      setCopyState("copyFailed")
     }
   }
 
-  if (error === true) {
+  if (error) {
     return  <main className={dashboardCSS.page}>
       <div className={dashboardCSS.error}>
-        <span>We couldn't load your feedback. Check your internet connection. </span>
-        <Link to={"/"} reloadDocument>Try again.</Link>
+        <span>{t("dashboard.loadError")} </span>
+        <Link to={"/"} reloadDocument>{t("dashboard.tryAgain")}</Link>
       </div>
     </main>
   }
 
   if (stats === undefined) {
     return  <main className={dashboardCSS.page}>
-      <h3>Loading...</h3>
+      <h3>{t("dashboard.loading")}</h3>
     </main>
   }
   if (stats === null) {
     return <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>Welcome, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name} </h1>
+        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
         <div className={dashboardCSS.no_feedback}>
-          <h2>No customer feedback</h2>
-          <p>Share your feedback link or QR code with customers. Their answers will appear here, translated into your language.</p>
+          <h2>{t("dashboard.noFeedback")}</h2>
+          <p>{t("dashboard.noFeedbackBody")}</p>
             <div className={dashboardCSS.qrRow}>
               {qrCode ? (
                 <img
                   className={dashboardCSS.qrImage}
                   src={qrCode}
-                  alt="QR code for the feedback link"
+                  alt={t("dashboard.qrCode")}
                 />
               ) : (
-                <div className={dashboardCSS.qrPlaceholder}>QR code</div>
+                <div className={dashboardCSS.qrPlaceholder}>{t("dashboard.qrCode")}</div>
               )}
               <div>
                 <div className={dashboardCSS.inputs}>
@@ -125,21 +127,21 @@ function DashboardPage() {
                   />
                   <div className={dashboardCSS.buttons}>
                     <button type="button" className={dashboardCSS.copy} onClick={handleCopy}>
-                      Copy Link
+                      {t("dashboard.copyLink")}
                     </button>
                     {qrCode && (
                       <a className={dashboardCSS.download} href={qrCode} download="wingman-qr.png">
-                        Download QR (PNG)
+                        {t("dashboard.downloadQr")}
                       </a>
                     )}
                   </div>
                 </div>
-                {copyState && <p className={dashboardCSS.muted}>{copyState}</p>}
+                {copyState && <p className={dashboardCSS.muted}>{t(`dashboard.${copyState}`)}</p>}
               </div>
             </div>
             <div className={dashboardCSS.next_steps}>
-              <span>Next step: </span>
-              <Link to="/questions">Choose your feedback questions →</Link></div>
+              <span>{t("dashboard.nextStep")} </span>
+              <Link to="/questions">{t("dashboard.chooseQuestions")}</Link></div>
         </div>
 
     </main>
@@ -148,22 +150,22 @@ function DashboardPage() {
 
   return (
       <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>Welcome, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name} </h1>
+        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
         <div className={dashboardCSS.subheader}>
-          <span>Showing feedback in: <b>{restaurant && LABELS[restaurant.feedback_language]}</b></span>
-          <label>Time range:</label>
+          <span>{t("dashboard.feedbackLanguage")} <b>{restaurant && LABELS[restaurant.feedback_language]}</b></span>
+          <label>{t("dashboard.timeRange")}</label>
           <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 3 months</option>
-            <option value="">All time</option>
+            <option value="7">{t("dashboard.last7Days")}</option>
+            <option value="30">{t("dashboard.last30Days")}</option>
+            <option value="90">{t("dashboard.last3Months")}</option>
+            <option value="">{t("dashboard.allTime")}</option>
           </select>
         </div>
         <div className={dashboardCSS.stats}>
           {stats && Object.entries(stats).map(([label, value]) => (
             <div key={label} className={dashboardCSS.statBox}>
               <p>{value}</p>
-              <span>{label}</span>
+              <span>{t(`dashboard.${label}`)}</span>
             </div>
           ))}
         </div>
@@ -179,36 +181,39 @@ function DashboardPage() {
 }
 
 function AISection() {
+  const { t } = useLanguage();
   const [error, setError] = useState(true);
   if (error) {
     return <div className={dashboardCSS.ai}>
         <div className={dashboardCSS.error}>
-        <span>Summary unavailable right now. Your feedback is safe — </span>
-        <Link to={"/"} reloadDocument>try again</Link>
-        <span> in a few minutes</span>
+        <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
+        <Link to={"/"} reloadDocument>{t("dashboard.tryAgain")}</Link>
+        <span> {t("dashboard.tryAgainSoon")}</span>
       </div>
     </div>
   }
-  return <div className={dashboardCSS.ai}><p>AI Section</p></div>
+  return <div className={dashboardCSS.ai}><p>{t("dashboard.summaryUnavailable")}</p></div>
 }
 function RatingsSection() {
-  return <div className={dashboardCSS.ratings}><p>Ratings Section</p></div>
+  const { t } = useLanguage();
+  return <div className={dashboardCSS.ratings}><p>{t("dashboard.ratingsSection")}</p></div>
 }
 function SentimentSection() {
-  return <div className={dashboardCSS.sentiment}><p>Sentiment Section</p></div>
+  const { t } = useLanguage();
+  return <div className={dashboardCSS.sentiment}><p>{t("dashboard.sentimentSection")}</p></div>
 }
 
 
 function FeedbackSection({ feedbackData }) {
+  const { t } = useLanguage();
   return <div className={dashboardCSS.feedback}>
-      <div className={dashboardCSS.f_header}><h3>Recent feedback</h3><Link to="/feedback">See all→</Link></div>
+      <div className={dashboardCSS.f_header}><h3>{t("dashboard.recentFeedback")}</h3><Link to="/feedback">{t("dashboard.seeAll")}</Link></div>
       {feedbackData && feedbackData.map((feedback) => {
-        const capitalized = feedback.sentiment.charAt(0).toUpperCase() + feedback.sentiment.slice(1);
         return <div className={dashboardCSS.feedbackRow} key={feedback.id}>
           <div>
             <span className={dashboardCSS.rating}>{stars[feedback.rating]}</span>
-            <span className={dashboardCSS.bubble}>{capitalized}</span>
-            <span className={dashboardCSS.bubble}>Original: {LABELS[feedback.language]}</span>
+            <span className={dashboardCSS.bubble}>{t(`dashboard.sentiment.${feedback.sentiment}`)}</span>
+            <span className={dashboardCSS.bubble}>{t("dashboard.original")} {LABELS[feedback.language]}</span>
           </div>
           <FeedbackText feedback={feedback}/>
         </div>
@@ -217,10 +222,11 @@ function FeedbackSection({ feedbackData }) {
 }
 
 function FeedbackText({ feedback }) {
+  const { t } = useLanguage();
   const [translated, setTranslated] = useState(true);
   return <div>
-        <span>{translated ? feedback.translated_text : feedback.native_text}</span>
-        {feedback.native_text !== "" && <button onClick={() => setTranslated(!translated)} >Show {translated ? "original" : "translated"}</button>}
+        <span>{feedback.noWrittenComments ? t("dashboard.noWrittenComments") : translated ? feedback.translated_text : feedback.native_text}</span>
+        {feedback.native_text !== "" && <button onClick={() => setTranslated(!translated)} >{translated ? t("dashboard.showOriginal") : t("dashboard.showTranslated")}</button>}
       </div>
 }
 

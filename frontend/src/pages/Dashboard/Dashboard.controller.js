@@ -27,10 +27,10 @@ export const computeStats = function(pastData, feedbackData) {
     prevPeriodDiff = (num > 0 ? "+" : "") + num;
   }
   return {
-    "Avg rating": avgRating,
-    "Responses": responses,
-    "Positive": Number((pos / (pos + neg)).toFixed(2)) * 100 + "%",
-    "avg rating vs. previous period": prevPeriodDiff
+    avgRating,
+    responses,
+    positiveSentiment: Number((pos / (pos + neg)).toFixed(2)) * 100 + "%",
+    avgRatingVsPrevious: prevPeriodDiff
   }
 }
 
@@ -92,11 +92,15 @@ export const getResponseForEachFeedback = async (supabase, feedbackData) => {
       if (error) throw error;
       if (data === undefined || data === null) return {...feedback,
         native_text: "",
-        translated_text: "No written comments."
+        translated_text: "",
+        noWrittenComments: true,
       };
+      const nativeText = data.native_text ?? "";
+      const translatedText = data.translated_text ?? "";
       return {...feedback,
-        native_text: data?.native_text ?? "No written comments.",
-        translated_text: data?.translated_text ?? "No written comments.",
+        native_text: nativeText,
+        translated_text: translatedText,
+        noWrittenComments: nativeText === "" && translatedText === "",
       }
   }
   return await Promise.all(
