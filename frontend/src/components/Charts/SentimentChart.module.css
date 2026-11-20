@@ -1,0 +1,19 @@
+.bars {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 560 / 260;
+  font-family: var(--font-body, Arial, sans-serif);
+}
+.baseline { stroke: darkgray; stroke-width: 1; }
+.bar { cursor: pointer; }
+.bar:focus { outline: none; }
+.hit { fill: transparent; }
+.bar:focus-visible .hit { stroke: slategray; stroke-width: 1; stroke-dasharray: 3 4; }
+.positive { fill: seagreen; }
+.neutral { fill: darkgray; }
+.negative { fill: indianred; }
+.bar:hover .fill, .bar:focus-visible .fill { filter: brightness(0.9); }
+.label { fill: darkslategray; font-size: 14px; text-anchor: middle; }
+.count { fill: darkslategray; font-size: 14px; font-weight: 600; text-anchor: middle; }
+.empty { margin: 1.5rem 0; color: slategray; font-size: 0.875rem; }

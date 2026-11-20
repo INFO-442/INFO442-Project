@@ -1,0 +1,31 @@
+.wrapper {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  font-family: var(--font-body, Arial, sans-serif);
+}
+.svg { display: block; width: 100%; height: auto; aspect-ratio: 560 / 260; }
+.baseline { fill: none; stroke: darkgray; stroke-width: 1; }
+.grid { stroke: whitesmoke; stroke-width: 1; stroke-dasharray: 4 5; }
+.axis { fill: slategray; font-size: 14px; text-anchor: end; }
+.axisLabel { fill: darkslategray; font-size: 14px; text-anchor: middle; }
+.line { fill: none; stroke: chocolate; stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.dot { fill: chocolate; }
+.hit { fill: transparent; cursor: pointer; }
+.hit:focus { outline: none; stroke: chocolate; stroke-width: 1; stroke-dasharray: 3 4; }
+.tooltip {
+  position: absolute;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  max-width: 90%;
+  box-sizing: border-box;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  background: black;
+  color: white;
+  font-size: 0.875rem;
+  text-align: center;
+  pointer-events: none;
+}
+.note, .empty { margin: 1rem 0; color: slategray; font-size: 0.875rem; }

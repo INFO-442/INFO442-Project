@@ -157,3 +157,79 @@ export const getResponseForEachFeedback = async (supabase, feedbackData) => {
       return getSingleResponse(feedback)
     }))
 }
+
+/**
+ * Formats the label shown under a rating chart bucket.
+ * @param {Date} date First day of the bucket.
+ * @returns {string} Short label such as "Nov 3".
+ */
+function bucketLabel(date) {
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+}
+
+/**
+ * Groups feedback into rating buckets for the rating chart.
+ * One bucket per day for the 7-day range, one bucket per week otherwise.
+ * @param {Array<{rating: number, submitted_at: string}>} feedback Feedback rows in the selected range.
+ * @param {number|string} timeRange Number of days in the range, or an empty string for all time.
+ * @returns {Array<{label: string, isWeek: boolean, avg: number|null, count: number}>} Buckets in chronological order.
+ */
+export const buildRatingSeries = function(feedback, timeRange) {
+  if (!feedback || feedback.length === 0) return []
+
+  const days = timeRange === "" ? null : Number(timeRange)
+  const bucketSize = days === 7 ? 1 : 7
+  const bucketMs = bucketSize * 24 * 60 * 60 * 1000
+
+  const now = new Date()
+  let start
+  if (days === null) {
+    const times = feedback.map((row) => new Date(row.submitted_at).getTime())
+    start = new Date(Math.min(...times))
+  } else {
+    start = new Date(now.getTime() - (days - 1) * 24 * 60 * 60 * 1000)
+  }
+  start.setHours(0, 0, 0, 0)
+
+  const buckets = []
+  for (let time = start.getTime(); time <= now.getTime(); time += bucketMs) {
+    const bucketStart = new Date(time)
+    buckets.push({
+      start: time,
+      end: time + bucketMs,
+      label: bucketLabel(bucketStart),
+      isWeek: bucketSize === 7,
+      total: 0,
+      count: 0,
+    })
+  }
+
+  feedback.forEach((row) => {
+    const time = new Date(row.submitted_at).getTime()
+    const bucket = buckets.find((item) => time >= item.start && time < item.end)
+    if (bucket) {
+      bucket.total += row.rating
+      bucket.count += 1
+    }
+  })
+
+  return buckets.map((bucket) => ({
+    label: bucket.label,
+    isWeek: bucket.isWeek,
+    avg: bucket.count === 0 ? null : Number((bucket.total / bucket.count).toFixed(1)),
+    count: bucket.count,
+  }))
+}
+
+/**
+ * Counts how many feedback rows fall into each sentiment label.
+ * @param {Array<{sentiment: string}>} feedback Feedback rows in the selected range.
+ * @returns {{positive: number, neutral: number, negative: number}} Count per sentiment.
+ */
+export const countSentiment = function(feedback) {
+  const counts = { positive: 0, neutral: 0, negative: 0 }
+  ;(feedback ?? []).forEach((row) => {
+    if (row.sentiment in counts) counts[row.sentiment] += 1
+  })
+  return counts
+}

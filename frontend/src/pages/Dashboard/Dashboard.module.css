@@ -25,7 +25,7 @@
 }
 .no_feedback > h2 {
   margin: 1rem 0 0 0;
-  font-family: (--font-heading);
+  font-family: var(--font-heading);
 }
 .no_feedback > p {
   margin: 1rem 0 0.5rem 0;

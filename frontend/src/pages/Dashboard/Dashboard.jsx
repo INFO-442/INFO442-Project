@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import dashboardCSS from './Dashboard.module.css'
 import { useAuth } from "@/context/AuthContext.jsx"
@@ -7,7 +7,10 @@ import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { supabase } from "@/lib/supabase";
 import { LABELS } from '@/i18n/translations';
 import { computeStats, hasFeedback, getFeedback, getPastFeedback,
-         getResponseForEachFeedback } from './Dashboard.controller.js';
+         getResponseForEachFeedback, buildRatingSeries,
+         countSentiment } from './Dashboard.controller.js';
+import RatingChart from '@/components/Charts/RatingChart.jsx';
+import SentimentChart from '@/components/Charts/SentimentChart.jsx';
 import QRCode from "qrcode"
 
 const stars = {
@@ -28,6 +31,7 @@ function DashboardPage() {
   const [timeRange, setTimeRange] = useState(30); // "" is all time otherwise n days
   const [stats, setStats] = useState(undefined)
   const [recentFeedback, setRecentFeedback] = useState(undefined)
+  const [feedbackData, setFeedbackData] = useState(null)
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
   const [copyState, setCopyState] = useState("")
@@ -61,6 +65,7 @@ function DashboardPage() {
       if (has) {
         getFeedback(supabase, restaurant.id, timeRange)
           .then((res) => {
+            setFeedbackData(res)
             getPastFeedback(supabase, restaurant.id, timeRange)
               .then((pastRes) => { return computeStats(pastRes, res) })
               .then(setStats)
@@ -171,8 +176,8 @@ function DashboardPage() {
         </div>
         <section className={dashboardCSS.graphics}>
           <AISection/>
-          <RatingsSection/>
-          <SentimentSection/>
+          <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
+          <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
         </section>
 
@@ -194,13 +199,23 @@ function AISection() {
   }
   return <div className={dashboardCSS.ai}><p>{t("dashboard.summaryUnavailable")}</p></div>
 }
-function RatingsSection() {
+function RatingsSection({ feedback, timeRange }) {
   const { t } = useLanguage();
-  return <div className={dashboardCSS.ratings}><p>{t("dashboard.ratingsSection")}</p></div>
+  const series = buildRatingSeries(feedback ?? [], timeRange);
+  return <div className={dashboardCSS.ratings}>
+      <h3>{t("dashboard.ratingChart")}</h3>
+      <RatingChart series={series}/>
+    </div>
 }
-function SentimentSection() {
+
+function SentimentSection({ feedback }) {
   const { t } = useLanguage();
-  return <div className={dashboardCSS.sentiment}><p>{t("dashboard.sentimentSection")}</p></div>
+  const navigate = useNavigate();
+  const counts = countSentiment(feedback ?? []);
+  return <div className={dashboardCSS.sentiment}>
+      <h3>{t("dashboard.sentimentChart")}</h3>
+      <SentimentChart counts={counts} onSelect={(key) => navigate(`/feedback?sentiment=${key}`)}/>
+    </div>
 }
 
 
