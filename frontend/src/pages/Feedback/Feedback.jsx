@@ -1,5 +1,6 @@
 import feedbackCSS from './Feedback.module.css'
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 
 import { mockData } from './Feedback.mockdata.js'
 
@@ -15,6 +16,8 @@ const preferredLanguage = "Tiếng Việt";
 
 function FeedbackPage() {
 
+  const [searchParams] = useSearchParams()
+  const sentimentFromUrl = searchParams.get("sentiment")
 
   const sortFuncs = {
     new: (a, b) => b.Date.localeCompare(a.Date),
@@ -27,7 +30,9 @@ function FeedbackPage() {
 
   const [sort, setSort] = useState("new");
   const [rating, setRating] = useState("");
-  const [sentiment, setSentiment] = useState("");
+  const [sentiment, setSentiment] = useState(
+    sentimentFromUrl ? sentimentFromUrl[0].toUpperCase() + sentimentFromUrl.slice(1) : "",
+  );
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
