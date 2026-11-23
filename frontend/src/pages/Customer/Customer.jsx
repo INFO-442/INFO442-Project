@@ -1,49 +1,47 @@
 import { useRef, useState, useEffect } from "react"
 import { useParams } from "react-router"
 import customerCSS from "./Customer.module.css"
-import { demoRestaurant } from "./demoRestaurant.js"
+import { supabase } from "@/lib/supabase"
+import { getRestaurantBySlug, submitFeedback } from "./Customer.controller.js"
+import { getFormQuestions } from "../Questions/Questions.controller.js"
 import { useLanguage } from "@/i18n/LanguageContext.jsx"
 
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition'
 
 const maxAnswerLength = 1000
 const counterFrom = 900
-const storageKey = "wingman.customer.responses"
-
-function saveResponse(response) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      try {
-        const stored = localStorage.getItem(storageKey)
-        const list = stored ? JSON.parse(stored) : []
-        list.push(response)
-        localStorage.setItem(storageKey, JSON.stringify(list))
-        resolve()
-      } catch (error) {
-        reject(error)
-      }
-    }, 300)
-  })
-}
 
 function CustomerPage() {
   const { business } = useParams()
   const { t, language } = useLanguage()
+  const [restaurant, setRestaurant] = useState(null)
+  const [questions, setQuestions] = useState([])
+  const [status, setStatus] = useState("loading")
+  const [feedbackId, setFeedbackId] = useState(crypto.randomUUID())
   const [rating, setRating] = useState(0)
   const [answers, setAnswers] = useState({})
+  const [voiceUsed, setVoiceUsed] = useState({})
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [ratingError, setRatingError] = useState(false)
   const ratingRef = useRef(null)
 
-  if (business !== demoRestaurant.slug) {
-    return (
-      <div className={customerCSS.page}>
-        <p className={customerCSS.invalid}>{t("customer.invalid")}</p>
-      </div>
-    )
-  }
+  useEffect(() => {
+    async function load() {
+      setStatus("loading")
+      try {
+        const found = await getRestaurantBySlug(supabase, business)
+        const list = await getFormQuestions(supabase, found.id)
+        setRestaurant(found)
+        setQuestions(list)
+        setStatus("ready")
+      } catch {
+        setStatus("invalid")
+      }
+    }
+    load()
+  }, [business])
 
   function setAnswer(questionId, value) {
     setAnswers((current) => ({ ...current, [questionId]: value }))
@@ -62,26 +60,33 @@ function CustomerPage() {
       return
     }
 
+    const answerList = []
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i]
+      answerList.push({
+        questionId: question.id,
+        answerType: question.answerType,
+        value: answers[question.id],
+        byVoice: voiceUsed[question.id] === true,
+      })
+    }
+
     setSubmitting(true)
     setError("")
     try {
-      await saveResponse({
-        restaurant: demoRestaurant.slug,
-        rating,
-        answers,
-        submittedAt: new Date().toISOString(),
-      })
+      await submitFeedback(supabase, restaurant.id, feedbackId, rating, answerList, language)
       setSubmitted(true)
     } catch {
       setError(t("customer.sendError"))
-    } finally {
-      setSubmitting(false)
     }
+    setSubmitting(false)
   }
 
   function startOver() {
+    setFeedbackId(crypto.randomUUID())
     setRating(0)
     setAnswers({})
+    setVoiceUsed({})
     setSubmitted(false)
     setError("")
     setRatingError(false)
@@ -116,6 +121,10 @@ function CustomerPage() {
 
       await SpeechRecognition.startListening({ continuous: true, language });
       setVoiceQID(questionID);
+
+      const newVoiceUsed = Object.assign({}, voiceUsed)
+      newVoiceUsed[questionID] = true
+      setVoiceUsed(newVoiceUsed)
     }
   }
 
@@ -134,6 +143,18 @@ function CustomerPage() {
   }
 }, [isMicrophoneAvailable]);
 
+  if (status === "loading") {
+    return <div className={customerCSS.page}></div>
+  }
+
+  if (status === "invalid") {
+    return (
+      <div className={customerCSS.page}>
+        <p className={customerCSS.invalid}>{t("customer.invalid")}</p>
+      </div>
+    )
+  }
+
   if (submitted) {
     return (
       <div className={customerCSS.page}>
@@ -143,7 +164,7 @@ function CustomerPage() {
           </div>
           <h1>{t("customer.thanks")}</h1>
           <p>
-            {demoRestaurant.name} {t("customer.thanksBody")}
+            {restaurant.name} {t("customer.thanksBody")}
           </p>
           <button type="button" className={customerCSS.submit} onClick={startOver}>
             {t("customer.another")}
@@ -185,7 +206,7 @@ function CustomerPage() {
           {ratingError && <p className={customerCSS.error}>{t("customer.needRating")}</p>}
         </fieldset>
 
-        {demoRestaurant.questions.map((question) => (
+        {questions.map((question) => (
           <fieldset
             key={question.id}
             className={`${customerCSS.block}${

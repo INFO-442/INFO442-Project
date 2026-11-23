@@ -1,8 +1,10 @@
 import feedbackCSS from './Feedback.module.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
-
-import { mockData } from './Feedback.mockdata.js'
+import { useAuth } from "@/context/AuthContext.jsx"
+import { supabase } from "@/lib/supabase"
+import { LANGUAGES } from "@/i18n/translations"
+import { loadFeedback } from './Feedback.controller.js'
 
 const stars = {
     5: "★★★★★",
@@ -12,10 +14,88 @@ const stars = {
     1: "★☆☆☆☆",
   }
 
-const preferredLanguage = "Tiếng Việt";
+function languageName(code) {
+  for (let i = 0; i < LANGUAGES.length; i++) {
+    if (LANGUAGES[i].code === code) {
+      return LANGUAGES[i].label
+    }
+  }
+  if (code) {
+    return code
+  }
+  return ""
+}
+
+function answerText(response) {
+  if (response.native_text) {
+    return response.native_text
+  }
+  if (response.scale_value !== null && response.scale_value !== undefined) {
+    return String(response.scale_value)
+  }
+  if (response.yes_no === true) {
+    return "Yes"
+  }
+  if (response.yes_no === false) {
+    return "No"
+  }
+  return ""
+}
+
+function toPageFeedback(feedback) {
+  let voice = false
+  const responses = []
+
+  for (let i = 0; i < feedback.responses.length; i++) {
+    const response = feedback.responses[i]
+    const original = answerText(response)
+
+    let questionText = ""
+    let questionType = ""
+    if (response.questions) {
+      questionText = response.questions.main_text
+      questionType = response.questions.answer_type
+    }
+
+    let translated = original
+    if (response.translated_text) {
+      translated = response.translated_text
+    }
+
+    if (response.by_voice) {
+      voice = true
+    }
+
+    responses.push({
+      Response_ID: response.question_id,
+      Question_ID: response.question_id,
+      Question_Type: questionType,
+      Question_Native: questionText,
+      Question_Translated: questionText,
+      Native: original,
+      Translated: translated,
+    })
+  }
+
+  let sentiment = "—"
+  if (feedback.sentiment) {
+    sentiment = feedback.sentiment[0].toUpperCase() + feedback.sentiment.slice(1)
+  }
+
+  return {
+    Feedback_ID: feedback.id,
+    Language: languageName(feedback.language),
+    Date: feedback.submitted_at,
+    voice: voice,
+    Rating: feedback.rating,
+    Sentiment: sentiment,
+    Responses: responses,
+  }
+}
 
 function FeedbackPage() {
-
+  const { session } = useAuth()
+  const userId = session.user.id
   const [searchParams] = useSearchParams()
   const sentimentFromUrl = searchParams.get("sentiment")
 
@@ -25,7 +105,9 @@ function FeedbackPage() {
     high: (a, b) => b.Rating - a.Rating,
     low: (a, b) => a.Rating - b.Rating,
   }
-
+  const [feedbackList, setFeedbackList] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [preferredLanguage, setPreferredLanguage] = useState("");
   const [fullFeedback, setFullFeedback] = useState(null);
 
   const [sort, setSort] = useState("new");
@@ -36,6 +118,34 @@ function FeedbackPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("id, feedback_language")
+          .eq("owner_id", userId)
+          .single()
+        if (error) {
+          throw error
+        }
+        setPreferredLanguage(languageName(data.feedback_language))
+
+        const list = await loadFeedback(supabase, data.id)
+        const pageList = []
+        for (let i = 0; i < list.length; i++) {
+          pageList.push(toPageFeedback(list[i]))
+        }
+        setFeedbackList(pageList)
+      } catch {
+        setFeedbackList(null)
+      }
+      setLoading(false)
+    }
+    load()
+  }, [userId])
+
   function clearFilters() {
     setSort("new");
     setRating("");
@@ -45,7 +155,19 @@ function FeedbackPage() {
 
   const filterProps = { sort, rating, sentiment, search, setSort, setRating, setSentiment, setSearch };
 
-  let filtered = mockData;
+  if (loading) {
+    return (
+      <main className={feedbackCSS.page}>
+        <h1>All feedback</h1>
+        <p>Loading feedback...</p>
+      </main>
+    )
+  }
+
+  let filtered = null;
+  if (feedbackList !== null) {
+    filtered = feedbackList.slice();
+  }
   let pageCount = 0;
   let displayedFeedbacks = [];
   if (filtered !== null && filtered.length === 0) filtered = undefined;
@@ -99,7 +221,7 @@ function FeedbackPage() {
             <span>Page {page} of {pageCount}</span>
             {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
           </div>}
-        {(fullFeedback && <FullResponse feedback={fullFeedback}/>)}
+        {(fullFeedback && <FullResponse feedback={fullFeedback} preferredLanguage = {preferredLanguage}/>)}
       </>}
       {filtered === null && <p className={feedbackCSS.errorMessage}>Error: Feedback could not be loaded.</p>}
       {filtered === undefined && <p>There is no feedback yet for this business.</p>}
@@ -164,7 +286,7 @@ function Feedback({ setFullFeedback, feedback }) {
   </>
 }
 
-function FullResponse({ feedback }) {
+function FullResponse({ feedback, preferredLanguage}) {
   const dateText = new Date(feedback.Date).toLocaleString("en-US", {
           month: "short", day: "numeric",
           hour: "numeric", minute: "2-digit" })
