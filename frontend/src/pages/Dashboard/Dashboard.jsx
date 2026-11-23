@@ -7,8 +7,9 @@ import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { supabase } from "@/lib/supabase";
 import { LABELS } from '@/i18n/translations';
 import { computeStats, hasFeedback, getFeedback, getPastFeedback,
-         getResponseForEachFeedback, buildRatingSeries,
-         countSentiment } from './Dashboard.controller.js';
+         getResponseForEachFeedback, buildRatingSeries, countSentiment,
+         getAISummary, computeAISummary, uploadAISummary, computeAITimeText
+       } from './Dashboard.controller.js';
 import RatingChart from '@/components/Charts/RatingChart.jsx';
 import SentimentChart from '@/components/Charts/SentimentChart.jsx';
 import QRCode from "qrcode"
@@ -31,6 +32,7 @@ function DashboardPage() {
   const [timeRange, setTimeRange] = useState(30); // "" is all time otherwise n days
   const [stats, setStats] = useState(undefined)
   const [recentFeedback, setRecentFeedback] = useState(undefined)
+  const [AIsummaryData, setAIsummaryData] = useState(null)
   const [feedbackData, setFeedbackData] = useState(null)
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
@@ -70,6 +72,22 @@ function DashboardPage() {
               .then((pastRes) => { return computeStats(pastRes, res) })
               .then(setStats)
               .catch(setError)
+            const feedbackData = res;
+            if (feedbackData.length > 3) {
+              getAISummary(supabase, restaurant.id, timeRange)
+                .then((res) => {
+                  if (res && feedbackData.length == res.response_count) {
+                    setAIsummaryData(res);
+                  } else {
+                    computeAISummary(feedbackData)
+                      .then(res => uploadAISummary(supabase, res, feedbackData.length,
+                                                   restaurant.id, timeRange, restaurant.feedback_language))
+                      .then(setAIsummaryData)
+                  }
+                })
+            } else {
+              setAIsummaryData(false)
+            }
             return getResponseForEachFeedback(supabase, res.slice(0, 5))
           })
           .then(setRecentFeedback)
@@ -175,7 +193,7 @@ function DashboardPage() {
           ))}
         </div>
         <section className={dashboardCSS.graphics}>
-          <AISection/>
+          <AISection summary={AIsummaryData}/>
           <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
           <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
@@ -185,10 +203,13 @@ function DashboardPage() {
   )
 }
 
-function AISection() {
+function AISection({ summary }) {
   const { t } = useLanguage();
-  const [error, setError] = useState(true);
-  if (error) {
+  console.log(summary)
+  if (summary === false) {
+    return <div className={dashboardCSS.ai}><p>Not enough feedback to summarize yet. At least 3 responses are needed.</p></div>
+  }
+  if (summary === null) {
     return <div className={dashboardCSS.ai}>
         <div className={dashboardCSS.error}>
         <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
@@ -197,7 +218,16 @@ function AISection() {
       </div>
     </div>
   }
-  return <div className={dashboardCSS.ai}><p>{t("dashboard.summaryUnavailable")}</p></div>
+
+  const dateText = computeAITimeText(summary.created_at);
+  return <div className={dashboardCSS.ai}>
+      <h3>AI summary of feedback</h3>
+      <p><strong>Customers love:</strong> {summary.loves.length === 0 ? "None" : summary.loves.join(", ")}</p>
+      <p><strong>Common complaints:</strong> {summary.complaints.length === 0 ? "None" : summary.complaints.join(", ")}</p>
+      <p><strong>Suggestions:</strong> {summary.suggestions.length === 0 ? "No suggestions" : summary.suggestions.join(", ")}</p>
+      <span>Updated {dateText} · based on {summary.response_count} responses · </span>
+      <button>Regenerate</button>
+  </div>
 }
 function RatingsSection({ feedback, timeRange }) {
   const { t } = useLanguage();

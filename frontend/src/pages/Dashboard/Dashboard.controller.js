@@ -51,11 +51,54 @@ export const computeStats = function(pastData, feedbackData) {
   }
 }
 
+export const computeAISummary = async function(feedbackData) {
+  const content = {
+    "loves": ["broth flavor", "large portions", "friendly staff"],
+    "complaints": ["slow service on weekends (12 mentions)", "limited parking"],
+    "suggestions": ["add a vegetarian option (5 mentions)"]
+  }
+  return content;
+}
+
+export const uploadAISummary = async function(supabase, content, response_count, restaurant_id, time_range, language) {
+  const summary = {
+    restaurant_id, time_range, language, ...content, response_count,
+    created_at: "2026-11-21T18:30:00.123456+00:00"}
+  return summary
+
+  // const { data, error } = await supabase
+  //   .from("summaries")
+  //   .select()
+  //   .eq("restaurant_id", restaurant_id)
+  //   .eq("time_range", timeRange)
+  //   .limit(1)
+  //   .maybeSingle();
+  // if (error) throw error;
+  // return data;
+}
+
+export const computeAITimeText = function(created_at) {
+    const updatedAt = new Date(created_at);
+    const now = new Date();
+    const yesterday = new Date(now);
+
+    yesterday.setDate(yesterday.getDate() - 1);
+    const updatedTime = updatedAt.toLocaleTimeString("en-US", { timeStyle: "short" });
+    const day = updatedAt.getDate();
+    const daySuffix = day % 100 >= 11 && day % 100 <= 13
+      ? "th" : day % 10 === 1 ? "st" : day % 10 === 2 ? "nd" : day % 10 === 3 ? "rd" : "th";
+    const updatedDate = `${updatedAt.toLocaleDateString("en-US", { month: "long" })} ${day}${daySuffix}, ${updatedAt.getFullYear()}`;
+    return updatedAt.toDateString() === now.toDateString()
+      ? `today at ${updatedTime}` : updatedAt.toDateString() === yesterday.toDateString()
+      ? `yesterday at ${updatedTime}` : `${updatedTime} on ${updatedDate}`;
+}
+
 /**
- * Checks whether a restaurant has at least one feedback record.
+ * Fetches the AI summary for a restaurant and time range.
  * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query the database.
- * @param {string} restaurant_id Restaurant UUID to check.
- * @returns {Promise<boolean>} True if a feedback record exists; otherwise false.
+ * @param {string} restaurant_id Restaurant UUID.
+ * @param {string} timeRange Summary time range.
+ * @returns {Promise<object|null>} The matching summary row, or null if none exists.
  */
 export const hasFeedback = async function(supabase, restaurant_id) {
   const { data, error } = await supabase
@@ -66,6 +109,26 @@ export const hasFeedback = async function(supabase, restaurant_id) {
     .maybeSingle();
   if (error) throw error;
   return data !== null;
+}
+
+
+/**
+ * Fetches the AI summary for a restaurant and time range.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query the database.
+ * @param {string} restaurant_id Restaurant UUID.
+ * @param {string} timeRange Summary time range.
+ * @returns {Promise<object|null>} The matching summary row, or null if none exists.
+ */
+export const getAISummary = async function(supabase, restaurant_id, timeRange) {
+  const { data, error } = await supabase
+    .from("summaries")
+    .select()
+    .eq("restaurant_id", restaurant_id)
+    .eq("time_range", timeRange)
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
 }
 
 /**
