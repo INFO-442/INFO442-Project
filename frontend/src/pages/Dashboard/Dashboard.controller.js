@@ -40,7 +40,7 @@ export const computeStats = function(pastData, feedbackData) {
   const avgRating = Number((ratings / responses).toFixed(2));
   let prevPeriodDiff = "--"
   if (pastData.length !== 0) {
-    const num = avgRating - Number((pastRatings / pastResponses).toFixed(2));
+    const num = Number(avgRating - Number((pastRatings / pastResponses).toFixed(2))).toFixed(2);
     prevPeriodDiff = (num > 0 ? "+" : "") + num;
   }
   return {
