@@ -51,13 +51,35 @@ export const computeStats = function(pastData, feedbackData) {
   }
 }
 
-export const computeAISummary = async function(feedbackData) {
-  const content = {
-    "loves": ["broth flavor", "large portions", "friendly staff"],
-    "complaints": ["slow service on weekends (12 mentions)", "limited parking"],
-    "suggestions": ["add a vegetarian option (5 mentions)"]
-  }
-  return content;
+export const computeAISummary = async function(z, supabase, GoogleGenAI, feedbackData, apiKey) {
+  const data = await getAllResponsesAndQuestionsForEachFeedback(supabase, feedbackData)
+
+  const contentJsonSchema = {
+    type: "object",
+    properties: {
+      loves: { type: "array", items: { type: "string" } },
+      complaints: { type: "array", items: { type: "string" } },
+      suggestions: { type: "array", items: { type: "string" } },
+    },
+    required: ["loves", "complaints", "suggestions"]
+  };
+  const contentSchema = z.fromJSONSchema(contentJsonSchema);
+  if (!apiKey) throw new Error("Missing VITE_GEMINI_API_KEY. Add it to frontend/.env.local and restart the dev server.");
+  const ai = new GoogleGenAI({ apiKey });
+
+  const interaction = await ai.interactions.create({
+    model: "gemini-3.5-flash-lite",
+    input: "Return an object with exactly these keys: loves, complaints, and suggestions. Extract up to 3 things customers praised, up to 3 common complaints, and up to 3 suggestions from the reviews." +
+           "If there are no praises, set loves to an empty array. If there are no complaints, set complaints to an empty array." +
+           "If there are no suggestions, set suggestions to an empty array. Keep all text lowercase, except proper nouns. Use this data only:" + JSON.stringify(data),
+    response_format: {
+      type: 'text',
+      mime_type: 'application/json',
+      schema: contentJsonSchema
+    }
+  })
+
+  return contentSchema.parse(JSON.parse(interaction.output_text));
 }
 
 export const uploadAISummary = async function(supabase, content, response_count, restaurant_id, time_range, language) {
@@ -218,6 +240,32 @@ export const getResponseForEachFeedback = async (supabase, feedbackData) => {
   return await Promise.all(
     feedbackData.map(async (feedback) => {
       return getSingleResponse(feedback)
+    }))
+}
+
+
+/**
+ * Adds the first available written response to each feedback row.
+ * @param {import("@supabase/supabase-js").SupabaseClient} supabase Supabase client used to query responses.
+ * @param {Array<{id: string}>} feedbackData Feedback rows, each with a database ID.
+ * @returns {Promise<Array<Object>>} Feedback rows enriched with native_text, translated_text, and noWrittenComments.
+ */
+export const getAllResponsesAndQuestionsForEachFeedback = async (supabase, feedbackData) => {
+
+  async function getResponses(feedback) {
+    const { data, error } = await supabase
+      .from("feedback")
+      .select("*, responses(*, question:questions(*))")
+      .eq("id", feedback.id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+  return await Promise.all(
+    feedbackData.map(async (feedback) => {
+      const res = await getResponses(feedback)
+      return res
     }))
 }
 

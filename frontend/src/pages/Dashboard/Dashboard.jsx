@@ -14,6 +14,9 @@ import RatingChart from '@/components/Charts/RatingChart.jsx';
 import SentimentChart from '@/components/Charts/SentimentChart.jsx';
 import QRCode from "qrcode"
 
+import { GoogleGenAI } from "@google/genai";
+import * as z from "zod";
+
 const stars = {
     5: "★★★★★",
     4: "★★★★☆",
@@ -33,6 +36,7 @@ function DashboardPage() {
   const [stats, setStats] = useState(undefined)
   const [recentFeedback, setRecentFeedback] = useState(undefined)
   const [AIsummaryData, setAIsummaryData] = useState(null)
+  const [isAISummaryLoading, setIsAISummaryLoading] = useState(true)
   const [feedbackData, setFeedbackData] = useState(null)
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
@@ -73,20 +77,24 @@ function DashboardPage() {
               .then(setStats)
               .catch(setError)
             const feedbackData = res;
-            if (feedbackData.length > 3) {
+            if (feedbackData.length >= 3) {
+              setIsAISummaryLoading(true);
               getAISummary(supabase, restaurant.id, timeRange)
                 .then((res) => {
                   if (res && feedbackData.length == res.response_count) {
                     setAIsummaryData(res);
                   } else {
-                    computeAISummary(feedbackData)
+                    return computeAISummary(z, supabase, GoogleGenAI, feedbackData, import.meta.env.VITE_GEMINI_API_KEY)
                       .then(res => uploadAISummary(supabase, res, feedbackData.length,
                                                    restaurant.id, timeRange, restaurant.feedback_language))
                       .then(setAIsummaryData)
                   }
                 })
+                .catch(setError)
+                .finally(() => setIsAISummaryLoading(false));
             } else {
               setAIsummaryData(false)
+              setIsAISummaryLoading(false);
             }
             return getResponseForEachFeedback(supabase, res.slice(0, 5))
           })
@@ -94,6 +102,8 @@ function DashboardPage() {
           .catch(setError);
       } else {
         setStats(null);
+        setAIsummaryData(false);
+        setIsAISummaryLoading(false);
       }
     })
 
@@ -193,7 +203,7 @@ function DashboardPage() {
           ))}
         </div>
         <section className={dashboardCSS.graphics}>
-          <AISection summary={AIsummaryData}/>
+          <AISection summary={AIsummaryData} isLoading={isAISummaryLoading}/>
           <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
           <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
@@ -203,9 +213,11 @@ function DashboardPage() {
   )
 }
 
-function AISection({ summary }) {
+function AISection({ summary, isLoading }) {
   const { t } = useLanguage();
-  console.log(summary)
+  if (isLoading) {
+    return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
+  }
   if (summary === false) {
     return <div className={dashboardCSS.ai}><p>Not enough feedback to summarize yet. At least 3 responses are needed.</p></div>
   }
