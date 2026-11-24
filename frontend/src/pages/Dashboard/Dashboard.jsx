@@ -65,6 +65,7 @@ function DashboardPage() {
 
   useEffect(() => {
     if (!restaurant) return;
+    setAIsummaryData(undefined);
 
     hasFeedback(supabase, restaurant.id).then((has) => {
       if (has) {
@@ -105,6 +106,14 @@ function DashboardPage() {
     })
 
   }, [restaurant, timeRange]);
+
+
+  async function handleRegenerate() {
+    setAIsummaryData(undefined);
+    const content = await computeAISummary(z, supabase, GoogleGenAI, feedbackData, import.meta.env.VITE_GEMINI_API_KEY)
+    const summary = await uploadAISummary(supabase, content, feedbackData.length, restaurant.id, timeRange, restaurant.feedback_language)
+    setAIsummaryData(summary)
+  }
 
 
   async function handleCopy() {
@@ -200,7 +209,7 @@ function DashboardPage() {
           ))}
         </div>
         <section className={dashboardCSS.graphics}>
-          <AISection summary={AIsummaryData}/>
+          <AISection summary={AIsummaryData} handleRegenerate={handleRegenerate}/>
           <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
           <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
@@ -210,7 +219,7 @@ function DashboardPage() {
   )
 }
 
-function AISection({ summary }) {
+function AISection({ summary, handleRegenerate }) {
   const { t } = useLanguage();
   if (summary === undefined) {
     return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
@@ -235,8 +244,11 @@ function AISection({ summary }) {
       <p><strong>Customers love:</strong> {content.loves.length === 0 ? "None" : content.loves.join(", ")}</p>
       <p><strong>Common complaints:</strong> {content.complaints.length === 0 ? "None" : content.complaints.join(", ")}</p>
       <p><strong>Suggestions:</strong> {content.suggestions.length === 0 ? "No suggestions" : content.suggestions.join(", ")}</p>
-      <span>Updated {dateText} · based on {summary.response_count} responses · </span>
-      <button>Regenerate</button>
+      <div className={dashboardCSS.footer}>
+        <span >Updated {dateText} · based on {summary.response_count} responses · </span>
+        <button  onClick={handleRegenerate}>Regenerate</button>
+        <p>This summary is AI-generated and may contain mistakes</p>
+      </div>
   </div>
 }
 function RatingsSection({ feedback, timeRange }) {

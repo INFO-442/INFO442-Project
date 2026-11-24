@@ -250,11 +250,21 @@
   font-size: small;
 }
 
-
-.ai button {
-  margin: 0
+.ai {
+  display: flex;
+  flex-direction: column;
 }
-.ai span, .ai button {
+.ai p {
+  margin: 0 0 1em 0;
+}
+
+.ai .footer button {
+  margin: 0;
+  color: grey;
+}
+.ai .footer {
   color: grey;
   font-size: small;
+  flex-grow: 1;
+  margin-top: 1rem;
 }
