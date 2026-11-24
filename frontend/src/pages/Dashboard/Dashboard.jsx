@@ -35,8 +35,7 @@ function DashboardPage() {
   const [timeRange, setTimeRange] = useState(30); // "" is all time otherwise n days
   const [stats, setStats] = useState(undefined)
   const [recentFeedback, setRecentFeedback] = useState(undefined)
-  const [AIsummaryData, setAIsummaryData] = useState(null)
-  const [isAISummaryLoading, setIsAISummaryLoading] = useState(true)
+  const [AIsummaryData, setAIsummaryData] = useState(undefined)
   const [feedbackData, setFeedbackData] = useState(null)
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
@@ -78,7 +77,6 @@ function DashboardPage() {
               .catch(setError)
             const feedbackData = res;
             if (feedbackData.length >= 3) {
-              setIsAISummaryLoading(true);
               getAISummary(supabase, restaurant.id, timeRange)
                 .then((res) => {
                   if (res && feedbackData.length == res.response_count) {
@@ -90,11 +88,11 @@ function DashboardPage() {
                       .then(setAIsummaryData)
                   }
                 })
-                .catch(setError)
-                .finally(() => setIsAISummaryLoading(false));
+                .catch((error) => {
+                  setAIsummaryData(false);
+                })
             } else {
-              setAIsummaryData(false)
-              setIsAISummaryLoading(false);
+              setAIsummaryData(null);
             }
             return getResponseForEachFeedback(supabase, res.slice(0, 5))
           })
@@ -102,8 +100,7 @@ function DashboardPage() {
           .catch(setError);
       } else {
         setStats(null);
-        setAIsummaryData(false);
-        setIsAISummaryLoading(false);
+        setAIsummaryData(null);
       }
     })
 
@@ -203,7 +200,7 @@ function DashboardPage() {
           ))}
         </div>
         <section className={dashboardCSS.graphics}>
-          <AISection summary={AIsummaryData} isLoading={isAISummaryLoading}/>
+          <AISection summary={AIsummaryData}/>
           <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
           <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
@@ -213,15 +210,15 @@ function DashboardPage() {
   )
 }
 
-function AISection({ summary, isLoading }) {
+function AISection({ summary }) {
   const { t } = useLanguage();
-  if (isLoading) {
+  if (summary === undefined) {
     return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
   }
-  if (summary === false) {
+  if (summary === null) {
     return <div className={dashboardCSS.ai}><p>Not enough feedback to summarize yet. At least 3 responses are needed.</p></div>
   }
-  if (summary === null) {
+  if (summary === false) {
     return <div className={dashboardCSS.ai}>
         <div className={dashboardCSS.error}>
         <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
@@ -231,12 +228,13 @@ function AISection({ summary, isLoading }) {
     </div>
   }
 
+  const content = summary.content
   const dateText = computeAITimeText(summary.created_at);
   return <div className={dashboardCSS.ai}>
       <h3>AI summary of feedback</h3>
-      <p><strong>Customers love:</strong> {summary.loves.length === 0 ? "None" : summary.loves.join(", ")}</p>
-      <p><strong>Common complaints:</strong> {summary.complaints.length === 0 ? "None" : summary.complaints.join(", ")}</p>
-      <p><strong>Suggestions:</strong> {summary.suggestions.length === 0 ? "No suggestions" : summary.suggestions.join(", ")}</p>
+      <p><strong>Customers love:</strong> {content.loves.length === 0 ? "None" : content.loves.join(", ")}</p>
+      <p><strong>Common complaints:</strong> {content.complaints.length === 0 ? "None" : content.complaints.join(", ")}</p>
+      <p><strong>Suggestions:</strong> {content.suggestions.length === 0 ? "No suggestions" : content.suggestions.join(", ")}</p>
       <span>Updated {dateText} · based on {summary.response_count} responses · </span>
       <button>Regenerate</button>
   </div>

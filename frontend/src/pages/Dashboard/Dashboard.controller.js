@@ -83,20 +83,15 @@ export const computeAISummary = async function(z, supabase, GoogleGenAI, feedbac
 }
 
 export const uploadAISummary = async function(supabase, content, response_count, restaurant_id, time_range, language) {
-  const summary = {
-    restaurant_id, time_range, language, ...content, response_count,
-    created_at: "2026-11-21T18:30:00.123456+00:00"}
-  return summary
-
-  // const { data, error } = await supabase
-  //   .from("summaries")
-  //   .select()
-  //   .eq("restaurant_id", restaurant_id)
-  //   .eq("time_range", timeRange)
-  //   .limit(1)
-  //   .maybeSingle();
-  // if (error) throw error;
-  // return data;
+  const created_at = new Date().toISOString()
+  const { data, error } = await supabase
+    .from("summaries")
+    .upsert({ restaurant_id, time_range, language, content, response_count, created_at },
+            { onConflict: "restaurant_id, time_range" })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 export const computeAITimeText = function(created_at) {
@@ -255,7 +250,9 @@ export const getAllResponsesAndQuestionsForEachFeedback = async (supabase, feedb
   async function getResponses(feedback) {
     const { data, error } = await supabase
       .from("feedback")
-      .select("*, responses(*, question:questions(*))")
+      .select("rating, sentiment," +
+              "responses(native_text, translated_language, translated_text, yes_no, scale_value," +
+              "question:questions(answer_type, main_text, text_am, text_ar, text_en, text_es, text_ko, text_tr, text_vi, text_zh))")
       .eq("id", feedback.id)
       .single();
 
