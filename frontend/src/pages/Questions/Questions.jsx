@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react"
 import questionsCSS from "./Questions.module.css"
+import { useAuth } from "@/context/AuthContext.jsx"
+import { useLanguage } from "@/i18n/LanguageContext.jsx"
+import { supabase } from "@/lib/supabase"
+import { loadQuestions, addQuestion, removeQuestion } from "./Questions.controller.js"
 
 const ratingQuestionLabel = "Overall rating (1-5 stars)"
 const maxQuestions = 5
@@ -17,31 +21,6 @@ const answerTypes = [
   { value: "scale", label: "1-5 scale" },
   { value: "yes_no", label: "Yes / No" },
 ]
-const initialQuestions = [
-  {
-    id: "q1",
-    text: "How was the food?",
-    answerType: "short_answer",
-    suggestedKey: "How was the food?",
-  },
-  {
-    id: "q2",
-    text: "How was the wait time?",
-    answerType: "scale",
-    suggestedKey: "How was the wait time?",
-  },
-]
-
-const storageKey = "wingman.questions"
-
-function loadQuestions() {
-  try {
-    const raw = localStorage.getItem(storageKey)
-    return raw ? JSON.parse(raw) : initialQuestions
-  } catch {
-    return initialQuestions
-  }
-}
 
 function answerTypeLabel(value) {
   const type = answerTypes.find((item) => item.value === value)
@@ -49,7 +28,16 @@ function answerTypeLabel(value) {
 }
 
 function QuestionsPage() {
-  const [questions, setQuestions] = useState(loadQuestions)
+  const { session } = useAuth()
+  const { language } = useLanguage()
+  const userId = session.user.id
+  
+  
+  const [restaurantId, setRestaurantId] = useState(null)
+  const [questions, setQuestions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState("")
+  const [saving, setSaving] = useState(false)
   const [suggested, setSuggested] = useState("")
   const [text, setText] = useState("")
   const [answerType, setAnswerType] = useState("short_answer")
@@ -58,24 +46,36 @@ function QuestionsPage() {
   const [pendingRemove, setPendingRemove] = useState(null)
 
   useEffect(() => {
+    async function load() {
+      setLoading(true)
+      setLoadError("")
+      try {
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("id")
+          .eq("owner_id", userId)
+          .single()
+        if (error) {
+          throw error
+        }
+        setRestaurantId(data.id)
+        const list = await loadQuestions(supabase, data.id, language)
+        setQuestions(list)
+      } catch {
+        setLoadError("Couldn't load your questions. Check your connection and try again.")
+      }
+      setLoading(false)
+    }
+    load()
+  }, [userId, language])
+
+  useEffect(() => {
     if (!notice) return undefined
     const timer = setTimeout(() => setNotice(""), 3000)
     return () => clearTimeout(timer)
   }, [notice])
 
   const atLimit = questions.length >= maxQuestions
-
-  function saveQuestions(next) {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next))
-      setQuestions(next)
-      setNotice("✓ Questions saved. Your customer form is updated.")
-      return true
-    } catch {
-      setError("Couldn't save your questions. Check your connection and try again.")
-      return false
-    }
-  }
 
   function pickSuggested(event) {
     const value = event.target.value
@@ -86,46 +86,65 @@ function QuestionsPage() {
     }
   }
 
-  function handleAdd(event) {
+  async function handleAdd(event) {
     event.preventDefault()
-    const trimmed = text.trim()
+    if (saving) return
 
-    if (!trimmed) {
-      setError("Please type a question or pick a suggested one.")
-      return
-    }
-    if (trimmed.length > maxQuestionLength) {
-      setError("Questions must be 200 characters or less.")
-      return
-    }
-    const existing = [ratingQuestionLabel, ...questions.map((question) => question.text)]
-    if (existing.some((question) => question.toLowerCase() === trimmed.toLowerCase())) {
-      setError("This question is already on your form.")
-      return
-    }
-    if (atLimit) {
-      setError("You can have up to 5 questions. Remove one to add another.")
-      return
+    let suggestedKey = ""
+    if (suggested !== "" && suggested === text.trim()) {
+      suggestedKey = suggested
     }
 
+    setSaving(true)
     setError("")
-    const suggestedKey = suggested === trimmed ? suggested : ""
-    const next = [
-      ...questions,
-      { id: `q-${Date.now()}`, text: trimmed, answerType, suggestedKey },
-    ]
-    if (!saveQuestions(next)) return
-    setText("")
-    setSuggested("")
-    setAnswerType("short_answer")
+    try {
+      const added = await addQuestion(supabase, restaurantId, text, answerType, suggestedKey, language)
+      const newList = questions.slice()
+      newList.push(added)
+      setQuestions(newList)
+      setNotice("✓ Questions saved. Your customer form is updated.")
+      setText("")
+      setSuggested("")
+      setAnswerType("short_answer")
+    } catch (addError) {
+      setError(addError.message)
+    }
+    setSaving(false)
   }
 
-  function handleConfirmRemove() {
+  async function handleConfirmRemove() {
     const question = pendingRemove
     setPendingRemove(null)
-    saveQuestions(questions.filter((item) => item.id !== question.id))
+    setError("")
+    try {
+      await removeQuestion(supabase, restaurantId, question.id)
+      const newList = []
+      for (let i = 0; i < questions.length; i++) {
+        if (questions[i].id !== question.id) {
+          newList.push(questions[i])
+        }
+      }
+      setQuestions(newList)
+      setNotice("✓ Questions saved. Your customer form is updated.")
+    } catch (removeError) {
+      setError(removeError.message)
+    }
+  }
+  if (loading) {
+    return (
+        <main className={questionsCSS.page}>
+        <p className={questionsCSS.muted}>Loading your questions...</p>
+      </main>
+    )
   }
 
+  if (loadError) {
+    return (
+        <main className={questionsCSS.page}>
+        <p className={questionsCSS.error}>{loadError}</p>
+      </main>
+    )
+  }
   return (
     <main className={questionsCSS.page}>
       <div className={questionsCSS.layout}>
@@ -214,7 +233,7 @@ function QuestionsPage() {
               </label>
 
               <div>
-                <button type="submit" className={questionsCSS.primary} disabled={atLimit}>
+                <button type="submit" className={questionsCSS.primary} disabled={atLimit || saving}>
                   + Add question
                 </button>
               </div>

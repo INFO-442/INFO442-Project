@@ -60,15 +60,14 @@ export async function submitFeedback(supabase, restaurantId, feedbackId, rating,
   }
 
   let sentiment = null;
-  if (!hasText) {
-    if (rating >= 4) {
-      sentiment = "positive";
-    } else if (rating === 3) {
-      sentiment = "neutral";
-    } else {
+  if (rating >= 4) {
+    sentiment = "positive";
+  } else if (rating === 3) {
+    sentiment = "neutral";
+  } else {
       sentiment = "negative";
-    }
   }
+  
 
   const feedbackResult = await supabase.from("feedback").insert({
     id: feedbackId,
