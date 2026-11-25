@@ -137,7 +137,10 @@ function DashboardPage() {
 
   if (stats === null) {
     return <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        <div className={dashboardCSS.welcomeHeader}>
+          <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}</h1>
+          <h1 className={dashboardCSS.welcome}>{restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        </div>
         <div className={dashboardCSS.no_feedback}>
           <h2>{t("dashboard.noFeedback")}</h2>
           <p>{t("dashboard.noFeedbackBody")}</p>
@@ -185,16 +188,21 @@ function DashboardPage() {
 
   return (
       <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        <div className={dashboardCSS.welcomeHeader}>
+          <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}</h1>
+          <h1 className={dashboardCSS.welcome}>{restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        </div>
         <div className={dashboardCSS.subheader}>
           <span>{t("dashboard.feedbackLanguage")} <b>{restaurant && LABELS[restaurant.feedback_language]}</b></span>
-          <label>{t("dashboard.timeRange")}</label>
-          <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
-            <option value="7">{t("dashboard.last7Days")}</option>
-            <option value="30">{t("dashboard.last30Days")}</option>
-            <option value="90">{t("dashboard.last3Months")}</option>
-            <option value="">{t("dashboard.allTime")}</option>
-          </select>
+          <div>
+            <label>{t("dashboard.timeRange")}</label>
+            <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
+              <option value="7">{t("dashboard.last7Days")}</option>
+              <option value="30">{t("dashboard.last30Days")}</option>
+              <option value="90">{t("dashboard.last3Months")}</option>
+              <option value="">{t("dashboard.allTime")}</option>
+            </select>
+          </div>
         </div>
         <div className={dashboardCSS.stats}>
           {stats && Object.entries(stats).map(([label, value]) => (
