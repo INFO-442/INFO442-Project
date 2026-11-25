@@ -83,7 +83,7 @@ function DashboardPage() {
                   if (res && feedbackData.length == res.response_count) {
                     setAIsummaryData(res);
                   } else {
-                    return computeAISummary(z, supabase, GoogleGenAI, feedbackData, import.meta.env.VITE_GEMINI_API_KEY)
+                    return computeAISummary(z, supabase, GoogleGenAI, feedbackData, LABELS[restaurant.feedback_language], import.meta.env.VITE_GEMINI_API_KEY)
                       .then(res => uploadAISummary(supabase, res, feedbackData.length,
                                                    restaurant.id, timeRange, restaurant.feedback_language))
                       .then(setAIsummaryData)
@@ -220,13 +220,9 @@ function DashboardPage() {
 }
 
 function AISection({ summary, handleRegenerate }) {
-  const { t } = useLanguage();
-  if (summary === undefined) {
-    return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
-  }
-  if (summary === null) {
-    return <div className={dashboardCSS.ai}><p>Not enough feedback to summarize yet. At least 3 responses are needed.</p></div>
-  }
+  const { t, language } = useLanguage();
+  if (summary === undefined) return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
+  if (summary === null) return <div className={dashboardCSS.ai}><p>{t("dashboard.notEnoughFeedback")}</p></div>
   if (summary === false) {
     return <div className={dashboardCSS.ai}>
         <div className={dashboardCSS.error}>
@@ -238,16 +234,16 @@ function AISection({ summary, handleRegenerate }) {
   }
 
   const content = summary.content
-  const dateText = computeAITimeText(summary.created_at);
+  const dateText = computeAITimeText(summary.created_at, language, t);
   return <div className={dashboardCSS.ai}>
-      <h3>AI summary of feedback</h3>
-      <p><strong>Customers love:</strong> {content.loves.length === 0 ? "None" : content.loves.join(", ")}</p>
-      <p><strong>Common complaints:</strong> {content.complaints.length === 0 ? "None" : content.complaints.join(", ")}</p>
-      <p><strong>Suggestions:</strong> {content.suggestions.length === 0 ? "No suggestions" : content.suggestions.join(", ")}</p>
+      <h3>{t("dashboard.aiSummaryTitle")}</h3>
+      <p><strong>{t("dashboard.customersLove")}</strong> {content.loves.length === 0 ? t("dashboard.none") : content.loves.join(", ")}</p>
+      <p><strong>{t("dashboard.commonComplaints")}</strong> {content.complaints.length === 0 ? t("dashboard.none") : content.complaints.join(", ")}</p>
+      <p><strong>{t("dashboard.suggestions")}</strong> {content.suggestions.length === 0 ? t("dashboard.noSuggestions") : content.suggestions.join(", ")}</p>
       <div className={dashboardCSS.footer}>
-        <span >Updated {dateText} · based on {summary.response_count} responses · </span>
-        <button  onClick={handleRegenerate}>Regenerate</button>
-        <p>This summary is AI-generated and may contain mistakes</p>
+        <span>{t("dashboard.updated")} {dateText} · {t("dashboard.basedOn")} {summary.response_count} {t("dashboard.responses")} · </span>
+        <button onClick={handleRegenerate}>{t("dashboard.regenerate")}</button>
+        <p>{t("dashboard.aiDisclaimer")}</p>
       </div>
   </div>
 }

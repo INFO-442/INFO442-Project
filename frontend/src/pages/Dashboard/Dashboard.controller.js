@@ -51,7 +51,7 @@ export const computeStats = function(pastData, feedbackData) {
   }
 }
 
-export const computeAISummary = async function(z, supabase, GoogleGenAI, feedbackData, apiKey) {
+export const computeAISummary = async function(z, supabase, GoogleGenAI, feedbackData, feedback_language_label, apiKey) {
   const data = await getAllResponsesAndQuestionsForEachFeedback(supabase, feedbackData)
 
   const contentJsonSchema = {
@@ -67,11 +67,14 @@ export const computeAISummary = async function(z, supabase, GoogleGenAI, feedbac
   if (!apiKey) throw new Error("Missing VITE_GEMINI_API_KEY. Add it to frontend/.env.local and restart the dev server.");
   const ai = new GoogleGenAI({ apiKey });
 
+
+
   const interaction = await ai.interactions.create({
     model: "gemini-3.5-flash-lite",
     input: "Return an object with exactly these keys: loves, complaints, and suggestions. Extract up to 3 things customers praised, up to 3 common complaints, and up to 3 suggestions from the reviews." +
            "If there are no praises, set loves to an empty array. If there are no complaints, set complaints to an empty array." +
-           "If there are no suggestions, set suggestions to an empty array. Keep all text lowercase, except proper nouns. Use this data only:" + JSON.stringify(data),
+           "If there are no suggestions, set suggestions to an empty array. Keep all text lowercase, except proper nouns. All text must be in this language " + feedback_language_label + 
+           "Use this data only:" + JSON.stringify(data),
     response_format: {
       type: 'text',
       mime_type: 'application/json',
@@ -94,20 +97,25 @@ export const uploadAISummary = async function(supabase, content, response_count,
   return data;
 }
 
-export const computeAITimeText = function(created_at) {
+export const computeAITimeText = function(created_at, language = "en", t = (key) => key) {
     const updatedAt = new Date(created_at);
     const now = new Date();
     const yesterday = new Date(now);
 
     yesterday.setDate(yesterday.getDate() - 1);
-    const updatedTime = updatedAt.toLocaleTimeString("en-US", { timeStyle: "short" });
-    const day = updatedAt.getDate();
-    const daySuffix = day % 100 >= 11 && day % 100 <= 13
-      ? "th" : day % 10 === 1 ? "st" : day % 10 === 2 ? "nd" : day % 10 === 3 ? "rd" : "th";
-    const updatedDate = `${updatedAt.toLocaleDateString("en-US", { month: "long" })} ${day}${daySuffix}, ${updatedAt.getFullYear()}`;
+    const locale = {
+        en: "en-US", es: "es-ES", vi: "vi-VN", zh: "zh-CN",
+        ko: "ko-KR", tr: "tr-TR", am: "am-ET", ar: "ar-SA"
+    }[language] ?? "en-US";
+    const updatedTime = updatedAt.toLocaleTimeString(locale, { timeStyle: "short" });
+    const updatedDate = updatedAt.toLocaleDateString(locale, {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+    });
     return updatedAt.toDateString() === now.toDateString()
-      ? `today at ${updatedTime}` : updatedAt.toDateString() === yesterday.toDateString()
-      ? `yesterday at ${updatedTime}` : `${updatedTime} on ${updatedDate}`;
+      ? `${t("dashboard.todayAt")} ${updatedTime}` : updatedAt.toDateString() === yesterday.toDateString()
+      ? `${t("dashboard.yesterdayAt")} ${updatedTime}` : `${updatedTime} ${t("dashboard.on")} ${updatedDate}`;
 }
 
 /**
