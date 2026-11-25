@@ -328,8 +328,11 @@ function FeedbackSection({ feedbackData }) {
 function FeedbackText({ feedback }) {
   const { t } = useLanguage();
   const [translated, setTranslated] = useState(true);
+  const text = feedback.noWrittenComments ? t("dashboard.noWrittenComments") : translated ? feedback.translated_text : feedback.native_text;
+  const characters = Array.from(text ?? "");
+  const displayText = characters.length > 200 ? `${characters.slice(0, 199).join("")}…` : text;
   return <div>
-        <span>{feedback.noWrittenComments ? t("dashboard.noWrittenComments") : translated ? feedback.translated_text : feedback.native_text}</span>
+        <span>{displayText}</span>
         {feedback.native_text !== "" && <button onClick={() => setTranslated(!translated)} >{translated ? t("dashboard.showOriginal") : t("dashboard.showTranslated")}</button>}
       </div>
 }
