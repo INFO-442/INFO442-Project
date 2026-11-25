@@ -14,6 +14,7 @@
   align-items: center;
   flex-wrap: wrap;
   row-gap: 0.4rem;
+  column-gap: 1.5rem;
   margin-bottom: 0.7rem;
 }
 .search {
@@ -22,7 +23,6 @@
   flex-grow: 1;
   font-size: 12pt;
   border: 1px solid black;
-  margin-right: 1.5em;
   background: none;
 }
 .filterDiv > select {
@@ -30,7 +30,6 @@
   font-size: 13pt;
   padding: 0.1em 0.1em 0.1em 0.5em;
   height: 2em;
-  margin-right: 1.5em;
   background: none;
 }
 
@@ -46,7 +45,6 @@
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
-  table-layout: fixed;
 }
 .table th {
   width: 7em;
@@ -61,12 +59,6 @@
   padding: 0.5em;
 }
 
-.feedbackUnder > span {
-  margin: 0 1em 0 0;
-}
-.feedbackUnder {
-  font-size: 0.9em;
-}
 .table button, .noFeedback button {
   background: none;
   border: none;
@@ -78,6 +70,17 @@
 }
 .table button:hover, .noFeedback button:hover {
   color: rgb(59, 59, 59);
+}
+
+.feedbackUnder {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.1em;
+  column-gap: 1em;
+  font-size: 0.9em;
+}
+.feedbackUnder button{
+  margin: 0;
 }
 
 .tableFooter {
@@ -120,7 +123,7 @@
 }
 
 .fullResponse {
-  min-width: 34em;
+  min-width: min(34em, 70vw);
   max-width: 85vw;
   max-height: 90vh;
   border: solid black 4px;
@@ -139,13 +142,14 @@
   font-size: 1.2em;
 }
 .fullResponse .subheader {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1em;
+  row-gap: 0.5em;
   margin: 0.6em 0 0.8em 0;
 }
-.fullResponse .subheader span {
-  margin-right: 1em;
-}
 .fullResponse .subheader span.rating {
-  margin-right: 3em;
+  flex-grow: 1;
   font-size: 16pt;
 }
 .fullResponse h3 {
@@ -200,4 +204,22 @@
   text-align: center;
   margin: 2em;
   color: var(--color-error);
+}
+
+
+@media (max-width: 800px) {
+  .fullResponse {
+    width: 80vw;
+  }
+  .fullResponse .subheader {
+    margin-top: 0.1rem;
+  }
+  .fullResponse .subheader span.rating {
+    margin-right: 100%;
+  }
+}
+@media (max-width: 650px) {
+  .feedbackUnder {
+    margin-top: 0.2em;
+  }
 }
