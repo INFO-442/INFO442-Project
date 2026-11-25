@@ -7,20 +7,19 @@ import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { supabase } from "@/lib/supabase";
 import { LABELS } from '@/i18n/translations';
 import { computeStats, hasFeedback, getFeedback, getPastFeedback,
-         getResponseForEachFeedback, buildRatingSeries,
-         countSentiment } from './Dashboard.controller.js';
+         getResponseForEachFeedback, buildRatingSeries, countSentiment,
+         getAISummary, computeAISummary, uploadAISummary, computeAITimeText
+       } from './Dashboard.controller.js';
 import RatingChart from '@/components/Charts/RatingChart.jsx';
 import SentimentChart from '@/components/Charts/SentimentChart.jsx';
 import { ensureTranslations } from '@/pages/Feedback/Feedback.controller.js';
 import QRCode from "qrcode"
 
-const stars = {
-    5: "★★★★★",
-    4: "★★★★☆",
-    3: "★★★☆☆",
-    2: "★★☆☆☆",
-    1: "★☆☆☆☆",
-  }
+import { GoogleGenAI } from "@google/genai";
+import * as z from "zod";
+
+const STARS = { 5: "★★★★★", 4: "★★★★☆", 3: "★★★☆☆", 2: "★★☆☆☆", 1: "★☆☆☆☆", }
+const AI_COOLDOWN_MILLISECONDS = 60000
 
 function DashboardPage() {
   const { session } = useAuth();
@@ -32,6 +31,7 @@ function DashboardPage() {
   const [timeRange, setTimeRange] = useState(30); // "" is all time otherwise n days
   const [stats, setStats] = useState(undefined)
   const [recentFeedback, setRecentFeedback] = useState(undefined)
+  const [AIsummaryData, setAIsummaryData] = useState(undefined)
   const [feedbackData, setFeedbackData] = useState(null)
   const [qrCode, setQrCode] = useState("")
   const [link, setLink] = useState("")
@@ -61,17 +61,18 @@ function DashboardPage() {
 
   useEffect(() => {
     if (!restaurant) return;
-
+    setAIsummaryData(undefined);
     hasFeedback(supabase, restaurant.id).then(async (has) => {
       if (!has) {
         setStats(null);
+        setAIsummaryData(null);
         return;
       }
-
       await ensureTranslations(supabase, restaurant.id);
-
       getFeedback(supabase, restaurant.id, timeRange)
         .then((res) => {
+          if (res.length >= 3) loadAISummary(res)
+          else setAIsummaryData(null);
           setFeedbackData(res)
           getPastFeedback(supabase, restaurant.id, timeRange)
             .then((pastRes) => { return computeStats(pastRes, res) })
@@ -84,6 +85,31 @@ function DashboardPage() {
     })
 
   }, [restaurant, timeRange]);
+
+  async function loadAISummary(feedbackData) {
+    try {
+      const existingSummary = await getAISummary(supabase, restaurant.id, timeRange, restaurant.feedback_language, feedbackData.length);
+      if (existingSummary && existingSummary.language === restaurant.feedback_language) { setAIsummaryData(existingSummary); return }
+      generateAISummary(feedbackData)
+    } catch (error) { setAIsummaryData(false) }
+  }
+
+
+  async function generateAISummary(feedbackData) {
+    try {
+      const content = await computeAISummary(z, supabase, GoogleGenAI, feedbackData, LABELS[restaurant.feedback_language], import.meta.env.VITE_GEMINI_API_KEY)
+      const summary = await uploadAISummary(supabase, content, feedbackData.length, restaurant.id, timeRange, restaurant.feedback_language)
+      setAIsummaryData(summary)
+    } catch (error) { setAIsummaryData(false) }
+  }
+
+  function handleLoadAIButton() {
+    loadAISummary(feedbackData);
+  }
+  function handleRegenerateAIButton() {
+    setAIsummaryData(undefined)
+    generateAISummary(feedbackData);
+  }
 
 
   async function handleCopy() {
@@ -104,11 +130,8 @@ function DashboardPage() {
     </main>
   }
 
-  if (stats === undefined) {
-    return  <main className={dashboardCSS.page}>
-      <h3>{t("dashboard.loading")}</h3>
-    </main>
-  }
+  if (stats === undefined) return <main className={dashboardCSS.page}><h3>{t("dashboard.loading")}</h3></main>
+
   if (stats === null) {
     return <main className={dashboardCSS.page}>
         <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
@@ -179,7 +202,7 @@ function DashboardPage() {
           ))}
         </div>
         <section className={dashboardCSS.graphics}>
-          <AISection/>
+          <AISection summary={AIsummaryData} handleLoadAIButton={handleLoadAIButton} handleRegenerateAIButton={handleRegenerateAIButton}/>
           <RatingsSection feedback={feedbackData} timeRange={timeRange}/>
           <SentimentSection feedback={feedbackData}/>
           <FeedbackSection feedbackData={recentFeedback}/>
@@ -189,20 +212,71 @@ function DashboardPage() {
   )
 }
 
-function AISection() {
-  const { t } = useLanguage();
-  const [error, setError] = useState(true);
-  if (error) {
+function AISection({ summary, handleLoadAIButton, handleRegenerateAIButton }) {
+  const { t, language } = useLanguage();
+
+  if (summary === undefined) return <div className={dashboardCSS.ai}><p>{t("dashboard.loading")}</p></div>
+  if (summary === null) return <div className={dashboardCSS.ai}><p>{t("dashboard.notEnoughFeedback")}</p></div>
+  if (summary === false) {
     return <div className={dashboardCSS.ai}>
-        <div className={dashboardCSS.error}>
+      <div className={dashboardCSS.error}>
         <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
-        <Link to={"/"} reloadDocument>{t("dashboard.tryAgain")}</Link>
-        <span> {t("dashboard.tryAgainSoon")}</span>
+        <RetryAIButton handleLoadAIButton={handleLoadAIButton} label={t("dashboard.retrySummary")} cooldownLabel={t("dashboard.retryCooldown")} />
       </div>
     </div>
   }
-  return <div className={dashboardCSS.ai}><p>{t("dashboard.summaryUnavailable")}</p></div>
+
+  const content = summary.content;
+  const dateText = computeAITimeText(summary.created_at, language, t);
+  return <div className={dashboardCSS.ai}>
+    <h3>{t("dashboard.aiSummaryTitle")}</h3>
+    <p><strong>{t("dashboard.customersLove")}</strong> {content.loves.length === 0 ? t("dashboard.none") : content.loves.join(", ")}</p>
+    <p><strong>{t("dashboard.commonComplaints")}</strong> {content.complaints.length === 0 ? t("dashboard.none") : content.complaints.join(", ")}</p>
+    <p><strong>{t("dashboard.suggestions")}</strong> {content.suggestions.length === 0 ? t("dashboard.noSuggestions") : content.suggestions.join(", ")}</p>
+    <div className={dashboardCSS.footer}>
+      <span>{t("dashboard.updated")} {dateText} · {t("dashboard.basedOn")} {summary.response_count} {t("dashboard.responses")} · </span>
+      <RegenerateAIButton createdAt={summary.created_at} onClick={handleRegenerateAIButton} label={t("dashboard.regenerate")} cooldownLabel={t("dashboard.regenerateCooldown")} />
+      <p>{t("dashboard.aiDisclaimer")}</p>
+    </div>
+  </div>
 }
+
+function RetryAIButton({ handleLoadAIButton, label, cooldownLabel }) {
+  const [cooldownUntil, setCooldownUntil] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
+  const isCoolingDown = now < cooldownUntil;
+
+  useEffect(() => {
+    const remaining = cooldownUntil - Date.now();
+    if (remaining <= 0) return;
+    const timeout = setTimeout(() => setNow(Math.max(Date.now(), cooldownUntil)), remaining);
+    return () => clearTimeout(timeout);
+  }, [cooldownUntil]);
+
+  function handleClick() {
+    if (Date.now() < cooldownUntil) return;
+    setCooldownUntil(Date.now() + AI_COOLDOWN_MILLISECONDS);
+    handleLoadAIButton();
+  }
+
+  return <button onClick={handleClick} disabled={isCoolingDown}>{isCoolingDown ? cooldownLabel : label}</button>;
+}
+
+function RegenerateAIButton({ createdAt, onClick, label, cooldownLabel }) {
+  const [now, setNow] = useState(Date.now());
+  const createdAtTime = Date.parse(createdAt);
+  const isCoolingDown = Number.isFinite(createdAtTime) && now >= createdAtTime && now - createdAtTime < AI_COOLDOWN_MILLISECONDS;
+
+  useEffect(() => {
+    const remaining = createdAtTime + AI_COOLDOWN_MILLISECONDS - Date.now();
+    if (!Number.isFinite(createdAtTime) || remaining <= 0) return;
+    const timeout = setTimeout(() => setNow(Date.now()), remaining);
+    return () => clearTimeout(timeout);
+  }, [createdAtTime, now]);
+
+  return <button onClick={onClick} disabled={isCoolingDown}>{isCoolingDown ? cooldownLabel : label}</button>;
+}
+
 function RatingsSection({ feedback, timeRange }) {
   const { t } = useLanguage();
   const series = buildRatingSeries(feedback ?? [], timeRange);
@@ -230,7 +304,7 @@ function FeedbackSection({ feedbackData }) {
       {feedbackData && feedbackData.slice(0, 5).map((feedback) => {
         return <div className={dashboardCSS.feedbackRow} key={feedback.id}>
           <div>
-            <span className={dashboardCSS.rating}>{stars[feedback.rating]}</span>
+            <span className={dashboardCSS.rating}>{STARS[feedback.rating]}</span>
             <span className={dashboardCSS.bubble}>{t(`dashboard.sentiment.${feedback.sentiment}`)}</span>
             <span className={dashboardCSS.bubble}>{t("dashboard.original")} {LABELS[feedback.language]}</span>
           </div>

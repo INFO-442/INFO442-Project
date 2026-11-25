@@ -239,7 +239,7 @@
   width: fit-content;
 }
 
-.feedback button {
+.feedback button, .ai button {
   background: none;
   border: none;
   padding: 0;
@@ -248,4 +248,39 @@
   font: inherit;
   margin: 0 0 0 1em;
   font-size: small;
+}
+
+.ai {
+  display: flex;
+  flex-direction: column;
+}
+.ai p {
+  margin: 0 0 1em 0;
+}
+
+.ai .footer button {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+}
+.ai .error button {
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ai button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+.ai .footer {
+  color: grey;
+  font-size: small;
+  flex-grow: 1;
+  margin-top: 1rem;
 }
