@@ -221,7 +221,7 @@ function AISection({ summary, handleLoadAIButton, handleRegenerateAIButton }) {
     return <div className={dashboardCSS.ai}>
       <div className={dashboardCSS.error}>
         <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
-        <RetryAIButton onClick={handleLoadAIButton} label={t("dashboard.retrySummary")} cooldownLabel={t("dashboard.retryCooldown")} />
+        <RetryAIButton handleLoadAIButton={handleLoadAIButton} label={t("dashboard.retrySummary")} cooldownLabel={t("dashboard.retryCooldown")} />
       </div>
     </div>
   }
@@ -240,22 +240,23 @@ function AISection({ summary, handleLoadAIButton, handleRegenerateAIButton }) {
     </div>
   </div>
 }
-function RetryAIButton({ onClick, label, cooldownLabel }) {
+
+function RetryAIButton({ handleLoadAIButton, label, cooldownLabel }) {
   const [cooldownUntil, setCooldownUntil] = useState(0);
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   const isCoolingDown = now < cooldownUntil;
 
   useEffect(() => {
     const remaining = cooldownUntil - Date.now();
     if (remaining <= 0) return;
-    const timeout = setTimeout(() => setNow(Date.now()), remaining);
+    const timeout = setTimeout(() => setNow(Math.max(Date.now(), cooldownUntil)), remaining);
     return () => clearTimeout(timeout);
-  }, [cooldownUntil, now]);
+  }, [cooldownUntil]);
 
   function handleClick() {
     if (Date.now() < cooldownUntil) return;
     setCooldownUntil(Date.now() + AI_COOLDOWN_MILLISECONDS);
-    onClick();
+    handleLoadAIButton();
   }
 
   return <button onClick={handleClick} disabled={isCoolingDown}>{isCoolingDown ? cooldownLabel : label}</button>;
