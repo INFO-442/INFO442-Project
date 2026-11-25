@@ -87,8 +87,8 @@ function DashboardPage() {
 
   async function loadAISummary(feedbackData) {
     try {
-      const existingSummary = await getAISummary(supabase, restaurant.id, timeRange, feedbackData.length);
-      if (existingSummary) { setAIsummaryData(existingSummary); return }
+      const existingSummary = await getAISummary(supabase, restaurant.id, timeRange, restaurant.feedback_language, feedbackData.length);
+      if (existingSummary && existingSummary.language === restaurant.feedback_language) { setAIsummaryData(existingSummary); return }
       generateAISummary(feedbackData)
     } catch (error) { setAIsummaryData(false) }
   }
@@ -220,8 +220,7 @@ function AISection({ summary, handleLoadAIButton, handleRegenerateAIButton }) {
     return <div className={dashboardCSS.ai}>
       <div className={dashboardCSS.error}>
         <span>{t("dashboard.summaryUnavailable")} {t("dashboard.feedbackSafe")} </span>
-        <RetryAIButton onClick={handleLoadAIButton} label={t("dashboard.retrySummary")} />
-        <span> {t("dashboard.tryAgainSoon")}</span>
+        <RetryAIButton onClick={handleLoadAIButton} label={t("dashboard.retrySummary")} cooldownLabel={t("dashboard.retryCooldown")} />
       </div>
     </div>
   }
@@ -235,12 +234,12 @@ function AISection({ summary, handleLoadAIButton, handleRegenerateAIButton }) {
     <p><strong>{t("dashboard.suggestions")}</strong> {content.suggestions.length === 0 ? t("dashboard.noSuggestions") : content.suggestions.join(", ")}</p>
     <div className={dashboardCSS.footer}>
       <span>{t("dashboard.updated")} {dateText} · {t("dashboard.basedOn")} {summary.response_count} {t("dashboard.responses")} · </span>
-      <RegenerateAIButton createdAt={summary.created_at} onClick={handleRegenerateAIButton} label={t("dashboard.regenerate")} />
+      <RegenerateAIButton createdAt={summary.created_at} onClick={handleRegenerateAIButton} label={t("dashboard.regenerate")} cooldownLabel={t("dashboard.regenerateCooldown")} />
       <p>{t("dashboard.aiDisclaimer")}</p>
     </div>
   </div>
 }
-function RetryAIButton({ onClick, label }) {
+function RetryAIButton({ onClick, label, cooldownLabel }) {
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [now, setNow] = useState(Date.now());
   const isCoolingDown = now < cooldownUntil;
@@ -258,10 +257,10 @@ function RetryAIButton({ onClick, label }) {
     onClick();
   }
 
-  return <button onClick={handleClick} disabled={isCoolingDown}>{label}</button>;
+  return <button onClick={handleClick} disabled={isCoolingDown}>{isCoolingDown ? cooldownLabel : label}</button>;
 }
 
-function RegenerateAIButton({ createdAt, onClick, label }) {
+function RegenerateAIButton({ createdAt, onClick, label, cooldownLabel }) {
   const [now, setNow] = useState(Date.now());
   const createdAtTime = Date.parse(createdAt);
   const isCoolingDown = Number.isFinite(createdAtTime) && now >= createdAtTime && now - createdAtTime < AI_COOLDOWN_MILLISECONDS;
@@ -273,7 +272,7 @@ function RegenerateAIButton({ createdAt, onClick, label }) {
     return () => clearTimeout(timeout);
   }, [createdAtTime, now]);
 
-  return <button onClick={onClick} disabled={isCoolingDown}>{label}</button>;
+  return <button onClick={onClick} disabled={isCoolingDown}>{isCoolingDown ? cooldownLabel : label}</button>;
 }
 
 function RatingsSection({ feedback, timeRange }) {
