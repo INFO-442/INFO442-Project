@@ -12,6 +12,7 @@ import { computeStats, hasFeedback, getFeedback, getPastFeedback,
        } from './Dashboard.controller.js';
 import RatingChart from '@/components/Charts/RatingChart.jsx';
 import SentimentChart from '@/components/Charts/SentimentChart.jsx';
+import { ensureTranslations } from '@/pages/Feedback/Feedback.controller.js';
 import QRCode from "qrcode"
 
 import { GoogleGenAI } from "@google/genai";
@@ -61,26 +62,26 @@ function DashboardPage() {
   useEffect(() => {
     if (!restaurant) return;
     setAIsummaryData(undefined);
-
-    hasFeedback(supabase, restaurant.id).then((has) => {
-      if (has) {
-        getFeedback(supabase, restaurant.id, timeRange)
-          .then((res) => {
-            if (res.length >= 3) loadAISummary(res)
-            else setAIsummaryData(null);
-            setFeedbackData(res)
-            getPastFeedback(supabase, restaurant.id, timeRange)
-              .then((pastRes) => { return computeStats(pastRes, res) })
-              .then(setStats)
-              .catch(setError)
-            return getResponseForEachFeedback(supabase, res.slice(0, 5))
-          })
-          .then(setRecentFeedback)
-          .catch(setError);
-      } else {
+    hasFeedback(supabase, restaurant.id).then(async (has) => {
+      if (!has) {
         setStats(null);
         setAIsummaryData(null);
+        return;
       }
+      await ensureTranslations(supabase, restaurant.id);
+      getFeedback(supabase, restaurant.id, timeRange)
+        .then((res) => {
+          if (res.length >= 3) loadAISummary(res)
+          else setAIsummaryData(null);
+          setFeedbackData(res)
+          getPastFeedback(supabase, restaurant.id, timeRange)
+            .then((pastRes) => { return computeStats(pastRes, res) })
+            .then(setStats)
+            .catch(setError)
+          return getResponseForEachFeedback(supabase, res.slice(0, 5))
+        })
+        .then(setRecentFeedback)
+        .catch(setError);
     })
 
   }, [restaurant, timeRange]);

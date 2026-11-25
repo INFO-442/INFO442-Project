@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router'
 import { useAuth } from "@/context/AuthContext.jsx"
 import { supabase } from "@/lib/supabase"
 import { LANGUAGES } from "@/i18n/translations"
-import { loadFeedback } from './Feedback.controller.js'
+import { ensureTranslations, loadFeedback } from './Feedback.controller.js'
 
 const stars = {
     5: "★★★★★",
@@ -132,6 +132,7 @@ function FeedbackPage() {
         }
         setPreferredLanguage(languageName(data.feedback_language))
 
+        await ensureTranslations(supabase, data.id)
         const list = await loadFeedback(supabase, data.id)
         const pageList = []
         for (let i = 0; i < list.length; i++) {

@@ -1,3 +1,5 @@
+import { translate } from "../../lib/ai.js";
+
 const LANGUAGES = ["en", "es", "vi", "zh", "ko", "tr", "am", "ar"];
 const ANSWER_TYPES = ["short_answer", "scale", "yes_no"];
 const MAX_QUESTIONS = 5;
@@ -176,6 +178,21 @@ export async function addQuestion(supabase, restaurantId, text, answerType, sugg
 
   if (insertError) {
     throw makeError("save");
+  }
+
+  const missing = LANGUAGES.filter((target) => !created["text_" + target]);
+  if (missing.length > 0) {
+    const results = await Promise.all(missing.map((target) => translate(trimmed, target)));
+    const translations = {};
+    for (let i = 0; i < missing.length; i++) {
+      if (results[i].text) {
+        translations["text_" + missing[i]] = results[i].text;
+      }
+    }
+    if (Object.keys(translations).length > 0) {
+      await supabase.from("questions").update(translations).eq("id", created.id);
+      Object.assign(created, translations);
+    }
   }
 
   let nextPosition = 1;
