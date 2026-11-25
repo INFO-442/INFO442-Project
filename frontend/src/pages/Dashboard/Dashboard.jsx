@@ -130,7 +130,10 @@ function DashboardPage() {
     </main>
   }
 
-  if (stats === undefined) return <main className={dashboardCSS.page}><h3>{t("dashboard.loading")}</h3></main>
+  if (stats === undefined) return <main className={dashboardCSS.page}>
+      <h1 className={dashboardCSS.welcome}>{t("dashboard.welcomeLoading")}</h1>
+      <p>{t("dashboard.loading")}</p>
+    </main>
 
   if (stats === null) {
     return <main className={dashboardCSS.page}>
