@@ -299,9 +299,8 @@ function FullResponse({ feedback, preferredLanguage}) {
         <div className={feedbackCSS.subheader}>
           <span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span>
           <span className={`${feedbackCSS.sentiment} ${
-            (feedback.Sentiment === "Positive" ?
-            feedbackCSS.positive : feedback.Sentiment === "Negative")
-            ? feedbackCSS.negative : feedbackCSS.neutral
+            feedback.Sentiment === "Positive" ? feedbackCSS.positive : feedback.Sentiment === "Negative"
+              ? feedbackCSS.negative : feedbackCSS.neutral
           }`}>
             {feedback.Sentiment}
           </span>
