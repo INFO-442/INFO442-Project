@@ -78,9 +78,12 @@
   row-gap: 0.1em;
   column-gap: 1em;
   font-size: 0.9em;
+  justify-content: flex-start;
+  align-items: start;
 }
 .feedbackUnder button{
   margin: 0;
+  text-align: left;
 }
 
 .tableFooter {
@@ -90,6 +93,7 @@
   justify-items: center;
   width: 200px;
   margin: 1rem auto;
+  white-space: nowrap;
 }
 .tableFooter button{
   background: none;
@@ -99,11 +103,15 @@
   font: inherit;
   color: var(--text);
 }
+.date {
+  white-space: nowrap;
+}
 
 .sentiment {
   border: 1px solid black;
   border-radius: 50pt;
   padding: 0.1em 0.5em;
+  white-space: nowrap;
 }
 .positive {
   color: var(--color-success);
@@ -117,6 +125,7 @@
   color: var(--color-error);
   border-color: var(--color-error);
 }
+
 
 .noFeedback {
   margin: 1em 0.5em;

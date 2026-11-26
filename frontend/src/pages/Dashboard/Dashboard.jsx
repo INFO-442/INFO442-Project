@@ -316,7 +316,9 @@ function FeedbackSection({ feedbackData }) {
         return <div className={dashboardCSS.feedbackRow} key={feedback.id}>
           <div>
             <span className={dashboardCSS.rating}>{STARS[feedback.rating]}</span>
-            <span className={dashboardCSS.bubble}>{t(`dashboard.sentiment.${feedback.sentiment}`)}</span>
+            <span className={`${dashboardCSS.bubble} ${dashboardCSS[feedback.sentiment] ?? ""}`}>
+              {t(`dashboard.sentiment.${feedback.sentiment}`)}
+            </span>
             <span className={dashboardCSS.bubble}>{t("dashboard.original")} {t(`language.${feedback.language}`)}</span>
           </div>
           <FeedbackText feedback={feedback}/>

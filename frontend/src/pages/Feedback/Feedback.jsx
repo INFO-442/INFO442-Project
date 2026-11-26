@@ -258,7 +258,7 @@ function Filters({search, rating, sentiment, sort, setSearch, setRating, setSent
 function TableRow({ feedback, setFullFeedback }) {
   const { t, language } = useLanguage()
   return <tr>
-    <td>{new Date(feedback.Date).toLocaleString(language, { month: "short", day: "numeric"})}</td>
+    <td><span className={feedbackCSS.date}>{new Date(feedback.Date).toLocaleString(language, { month: "short", day: "numeric"})}</span></td>
     <td><span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span></td>
     <td><Feedback setFullFeedback={setFullFeedback} feedback={feedback} /></td>
     <td><span className={`${feedbackCSS.sentiment} ${
