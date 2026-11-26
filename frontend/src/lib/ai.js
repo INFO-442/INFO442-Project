@@ -28,3 +28,20 @@ export async function translate(text, target) {
     source: item.detectedSourceLanguage ?? null,
   };
 }
+
+export async function detectLanguage(text) {
+  const key = apiKey();
+  if (!key || !text) return null;
+
+  const response = await fetch(`${endpoint}/detect?key=${key}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ q: text }),
+  });
+
+  if (!response.ok) return null;
+
+  const body = await response.json();
+  const language = body.data?.detections?.[0]?.[0]?.language ?? null;
+  return language ? language.split("-")[0] : null;
+}
