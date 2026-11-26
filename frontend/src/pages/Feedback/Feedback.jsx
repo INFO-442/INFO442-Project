@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router'
 import { useAuth } from "@/context/AuthContext.jsx"
 import { supabase } from "@/lib/supabase"
 import { LANGUAGES } from "@/i18n/translations"
+import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { ensureTranslations, loadFeedback } from './Feedback.controller.js'
 
 const stars = {
@@ -93,8 +94,16 @@ function toPageFeedback(feedback) {
   }
 }
 
+function sentimentLabel(t, sentiment) {
+  if (sentiment === "—") {
+    return "—"
+  }
+  return t("dashboard.sentiment." + sentiment.toLowerCase())
+}
+
 function FeedbackPage() {
   const { session } = useAuth()
+  const { t } = useLanguage()
   const userId = session.user.id
   const [searchParams] = useSearchParams()
   const sentimentFromUrl = searchParams.get("sentiment")
@@ -159,8 +168,8 @@ function FeedbackPage() {
   if (loading) {
     return (
       <main className={feedbackCSS.page}>
-        <h1>All feedback</h1>
-        <p>Loading feedback...</p>
+        <h1>{t("feedback.title")}</h1>
+        <p>{t("feedback.loading")}</p>
       </main>
     )
   }
@@ -191,17 +200,17 @@ function FeedbackPage() {
 
   return (
     <main className={feedbackCSS.page}>
-      <h1>All feedback</h1>
+      <h1>{t("feedback.title")}</h1>
       <Filters {...filterProps}/>
       { (filtered !== null && filtered !== undefined) && <>
         <div className={feedbackCSS.tableDiv}>
           <table className={feedbackCSS.table}>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Rating</th>
-                <th className={feedbackCSS.wideColumn} >Feedback (translated to {preferredLanguage})</th>
-                <th>Sentiment</th>
+                <th>{t("feedback.date")}</th>
+                <th>{t("feedback.rating")}</th>
+                <th className={feedbackCSS.wideColumn} >{t("feedback.column").replace("{language}", preferredLanguage)}</th>
+                <th>{t("feedback.sentiment")}</th>
               </tr>
             </thead>
             <tbody>
@@ -211,66 +220,69 @@ function FeedbackPage() {
             </tbody>
           </table>
           {filtered.length == 0 && <div className={feedbackCSS.noFeedback}>
-            <span>No feedback matches your filters. </span>
-            <button onClick={clearFilters}>Clear filters</button>
+            <span>{t("feedback.noMatch")} </span>
+            <button onClick={clearFilters}>{t("feedback.clearFilters")}</button>
           </div> }
-          {filtered.length > 0 && pageCount == 1 && <div className={feedbackCSS.tableFooter}><span>Page {page} of {pageCount}</span></div>}
+          {filtered.length > 0 && pageCount == 1 && <div className={feedbackCSS.tableFooter}><span>{t("feedback.page").replace("{page}", page).replace("{count}", pageCount)}</span></div>}
         </div>
         {(filtered.length > 0 && pageCount != 1) &&
           <div className={feedbackCSS.tableFooter}>
-            {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>←Prev</button> : <span></span>}
-            <span>Page {page} of {pageCount}</span>
-            {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>Next→</button> : <span></span>}
+            {page !== 1 ? <button onClick={() => {setPage(page - 1)}}>{t("feedback.prev")}</button> : <span></span>}
+            <span>{t("feedback.page").replace("{page}", page).replace("{count}", pageCount)}</span>
+            {page !== pageCount ? <button onClick={() => {setPage(page + 1)}}>{t("feedback.next")}</button> : <span></span>}
           </div>}
         {(fullFeedback && <FullResponse feedback={fullFeedback} preferredLanguage = {preferredLanguage}/>)}
       </>}
-      {filtered === null && <p className={feedbackCSS.errorMessage}>Error: Feedback could not be loaded.</p>}
-      {filtered === undefined && <p>There is no feedback yet for this business.</p>}
+      {filtered === null && <p className={feedbackCSS.errorMessage}>{t("feedback.loadError")}</p>}
+      {filtered === undefined && <p>{t("feedback.empty")}</p>}
     </main>
   )
 }
 
 function Filters({search, rating, sentiment, sort, setSearch, setRating, setSentiment, setSort}) {
+  const { t } = useLanguage()
   return <div className={feedbackCSS.filterDiv}>
         <input className={feedbackCSS.search} value={search} type="text" required minLength="2"
-        placeholder='Search Feedback (e.g. "service")' onChange={(e) =>
+        placeholder={t("feedback.search")} onChange={(e) =>
         setSearch(e.target.value.toLocaleLowerCase())}/>
         <select value={rating} onChange={(e) => setRating(e.target.value)}>
-          <option value="">Rating: All</option>
-          <option value="5">Rating: 5</option>
-          <option value="4">Rating: 4</option>
-          <option value="3">Rating: 3</option>
-          <option value="2">Rating: 2</option>
-          <option value="1">Rating: 1</option>
+          <option value="">{t("feedback.rating")}: {t("feedback.all")}</option>
+          <option value="5">{t("feedback.rating")}: 5</option>
+          <option value="4">{t("feedback.rating")}: 4</option>
+          <option value="3">{t("feedback.rating")}: 3</option>
+          <option value="2">{t("feedback.rating")}: 2</option>
+          <option value="1">{t("feedback.rating")}: 1</option>
         </select>
         <select value={sentiment} onChange={(e) => setSentiment(e.target.value)}>
-          <option value="">Sentiment: All</option>
-          <option value="Positive">Sentiment: Positive</option>
-          <option value="Neutral">Sentiment: Neutral</option>
-          <option value="Negative">Sentiment: Negative</option>
+          <option value="">{t("feedback.sentiment")}: {t("feedback.all")}</option>
+          <option value="Positive">{t("feedback.sentiment")}: {t("dashboard.sentiment.positive")}</option>
+          <option value="Neutral">{t("feedback.sentiment")}: {t("dashboard.sentiment.neutral")}</option>
+          <option value="Negative">{t("feedback.sentiment")}: {t("dashboard.sentiment.negative")}</option>
         </select>
         <select value={sort} onChange={(e) => setSort(e.target.value)}>
-          <option value="new">Newest first</option>
-          <option value="old">Oldest first</option>
-          <option value="high">Highest rating</option>
-          <option value="low">Lowest rating</option>
+          <option value="new">{t("feedback.sort.new")}</option>
+          <option value="old">{t("feedback.sort.old")}</option>
+          <option value="high">{t("feedback.sort.high")}</option>
+          <option value="low">{t("feedback.sort.low")}</option>
         </select>
       </div>
 }
 
 function TableRow({ feedback, setFullFeedback }) {
+  const { t, language } = useLanguage()
   return <tr>
-    <td>{new Date(feedback.Date).toLocaleString("en-US", { month: "short", day: "numeric"})}</td>
+    <td>{new Date(feedback.Date).toLocaleString(language, { month: "short", day: "numeric"})}</td>
     <td><span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span></td>
     <td><Feedback setFullFeedback={setFullFeedback} feedback={feedback} /></td>
     <td><span className={`${feedbackCSS.sentiment} ${
             feedback.Sentiment === "Positive" ? feedbackCSS.positive : feedback.Sentiment === "Negative"
             ? feedbackCSS.negative : feedbackCSS.neutral}`}>
-            {feedback.Sentiment}</span></td>
+            {sentimentLabel(t, feedback.Sentiment)}</span></td>
   </tr>
 }
 
 function Feedback({ setFullFeedback, feedback }) {
+  const { t } = useLanguage()
   const [translated, setTranslated] = useState(true);
   const response = feedback.Responses.find((response) => response.Question_Type === "short_answer");
   const language = feedback.Language;
@@ -278,22 +290,23 @@ function Feedback({ setFullFeedback, feedback }) {
   return <>
       {response ? <span>Q: {translated ? response.Question_Translated : response.Question_Native} →
           "{translated ? response.Translated.substring(0, 10) : response.Native.substring(0, 10)}..."</span>
-        : <span>No written comments.</span>}
+        : <span>{t("dashboard.noWrittenComments")}</span>}
       <div className={feedbackCSS.feedbackUnder}>
-        <span>Original: {language} </span>
-        <button onClick={() => setTranslated(!translated)} >Show {translated ? "original" : "translated"}</button>
-        <button onClick={() => setFullFeedback(feedback)} command="show-modal" commandfor="full-response">View full response</button>
+        <span>{t("dashboard.original")} {language} </span>
+        <button onClick={() => setTranslated(!translated)} >{translated ? t("dashboard.showOriginal") : t("dashboard.showTranslated")}</button>
+        <button onClick={() => setFullFeedback(feedback)} command="show-modal" commandfor="full-response">{t("feedback.viewFull")}</button>
       </div>
   </>
 }
 
 function FullResponse({ feedback, preferredLanguage}) {
-  const dateText = new Date(feedback.Date).toLocaleString("en-US", {
+  const { t, language } = useLanguage()
+  const dateText = new Date(feedback.Date).toLocaleString(language, {
           month: "short", day: "numeric",
           hour: "numeric", minute: "2-digit" })
   return <dialog id="full-response" className={feedbackCSS.fullResponse}>
         <div className={feedbackCSS.responseHeader}>
-          <h3>Response · {dateText}</h3>
+          <h3>{t("feedback.response")} · {dateText}</h3>
           <button commandfor="full-response" command="close">✕</button>
         </div>
         <div className={feedbackCSS.subheader}>
@@ -303,9 +316,9 @@ function FullResponse({ feedback, preferredLanguage}) {
             feedbackCSS.positive : feedback.Sentiment === "Negative")
             ? feedbackCSS.negative : feedbackCSS.neutral
           }`}>
-            {feedback.Sentiment}
+            {sentimentLabel(t, feedback.Sentiment)}
           </span>
-          {(feedback.voice && <span className={feedbackCSS.sentiment}>Submitted by voice</span>)}
+          {(feedback.voice && <span className={feedbackCSS.sentiment}>{t("feedback.byVoice")}</span>)}
         </div>
         <div>
           {feedback.Responses.map((response, i) =>
@@ -313,18 +326,18 @@ function FullResponse({ feedback, preferredLanguage}) {
               <h4>Q{i + 1}: {response.Question_Translated}</h4>
               <div className={feedbackCSS.responseAnswers}>
                 <div>
-                  <p>{response.Translated === "" ? "No answer." : response.Translated}</p>
-                  <span>Translated ({preferredLanguage})</span>
+                  <p>{response.Translated === "" ? t("feedback.noAnswer") : response.Translated}</p>
+                  <span>{t("feedback.translated").replace("{language}", preferredLanguage)}</span>
                 </div>
                 <div>
-                  <p>{response.Native === "" ? "No answer." : response.Native}</p>
-                  <span>Original ({feedback.Language})</span>
+                  <p>{response.Native === "" ? t("feedback.noAnswer") : response.Native}</p>
+                  <span>{t("feedback.originalLanguage").replace("{language}", feedback.Language)}</span>
                 </div>
               </div>
             </div>)
           )}
         </div>
-        <p className={feedbackCSS.responseFooter}>Machine translation may not be perfect.</p>
+        <p className={feedbackCSS.responseFooter}>{t("feedback.machineNote")}</p>
       </dialog>
 }
 

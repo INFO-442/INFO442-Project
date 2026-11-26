@@ -1,3 +1,4 @@
+import { pageTranslations } from "./pageTranslations";
 export const LANGUAGES = [
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -958,3 +959,6 @@ export const translations = {
     "customer.rec": "تسجيل",
   },
 };
+for (const code in pageTranslations) {
+  Object.assign(translations[code], pageTranslations[code]);
+}

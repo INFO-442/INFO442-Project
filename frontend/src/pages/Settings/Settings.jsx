@@ -3,6 +3,7 @@ import QRCode from "qrcode"
 import settingsCSS from "./Settings.module.css"
 import { useAuth } from "@/context/AuthContext.jsx"
 import { supabase } from "@/lib/supabase";
+import { useLanguage } from "@/i18n/LanguageContext.jsx";
 
 const initialRestaurant = {
   name: "",
@@ -28,6 +29,7 @@ const languages = {
 
 function SettingsPage() {
   const { session } = useAuth();
+  const { t } = useLanguage();
   const userId = session.user.id;
 
   const [restaurant, setRestaurant] = useState(initialRestaurant)
@@ -83,15 +85,15 @@ function SettingsPage() {
     const name = form.name.trim()
 
     if (!name) {
-      setError("Restaurant name is required.")
+      setError("settings.nameRequired")
       return
     }
     if (name.length > maxRestaurantNameLength) {
-      setError("Restaurant name must be 80 characters or less.")
+      setError("settings.nameTooLong")
       return
     }
     if (!(form.feedback_language in languages)) {
-      setError("Couldn't save settings. Try again.")
+      setError("settings.saveFailed")
       return
     }
 
@@ -107,11 +109,11 @@ function SettingsPage() {
       .eq("owner_id", userId)
       .then(({ error }) => {
         if (error) {
-          setError("Couldn't save settings. Try again.");
+          setError("settings.saveFailed");
           return;
         }
         setRestaurant({ ...restaurant, ...form, name })
-        setNotice("✓ Settings saved.")
+        setNotice("settings.saved")
       })
 
   }
@@ -119,24 +121,24 @@ function SettingsPage() {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(link)
-      setCopyState("Copied!")
+      setCopyState("dashboard.copied")
     } catch {
-      setCopyState("Couldn't copy. Please select the link and copy it manually.")
+      setCopyState("dashboard.copyFailed")
     }
   }
 
   return (
     <main className={settingsCSS.page}>
-      <h1>Settings</h1>
+      <h1>{t("settings.title")}</h1>
 
       <form onSubmit={handleSubmit}>
         <div className={settingsCSS.layout}>
           <div className={settingsCSS.cardColumn}>
             <section className={settingsCSS.card}>
-              <h2>Restaurant profile</h2>
+              <h2>{t("settings.profile")}</h2>
 
               <label className={settingsCSS.field}>
-                Restaurant name
+                {t("settings.restaurantName")}
                 <input
                   type="text"
                   name="name"
@@ -147,44 +149,44 @@ function SettingsPage() {
               </label>
 
               <label className={settingsCSS.field}>
-                Address
+                {t("settings.address")}
                 <input
                   type="text"
                   name="address"
                   className={settingsCSS.input}
                   value={form.address}
                   onChange={handleChange}
-                  placeholder="Optional"
+                  placeholder={t("settings.optional")}
                 />
               </label>
 
               <label className={settingsCSS.field}>
-                Cuisine
+                {t("settings.cuisine")}
                 <input
                   type="text"
                   name="cuisine"
                   className={settingsCSS.input}
                   value={form.cuisine}
                   onChange={handleChange}
-                  placeholder="Optional"
+                  placeholder={t("settings.optional")}
                 />
               </label>
             </section>
 
             <div className={settingsCSS.saveRow}>
               <button type="submit" className={settingsCSS.primary}>
-                Save changes
+                {t("settings.save")}
               </button>
-              {error && <span className={settingsCSS.error}>{error}</span>}
-              {notice && <span className={settingsCSS.notice}>{notice}</span>}
+              {error && <span className={settingsCSS.error}>{t(error)}</span>}
+              {notice && <span className={settingsCSS.notice}>{t(notice)}</span>}
             </div>
           </div>
 
           <section className={settingsCSS.card}>
-            <h2>Language</h2>
+            <h2>{t("settings.language")}</h2>
 
             <label className={settingsCSS.field}>
-              Translate customer feedback into
+              {t("settings.feedbackLanguage")}
               <select
                 name="feedback_language"
                 className={settingsCSS.select}
@@ -199,7 +201,7 @@ function SettingsPage() {
               </select>
             </label>
 
-            <h2 className={settingsCSS.sectionHeading}>Customer feedback link</h2>
+            <h2 className={settingsCSS.sectionHeading}>{t("settings.link")}</h2>
 
             <div className={settingsCSS.linkRow}>
               <input
@@ -210,33 +212,33 @@ function SettingsPage() {
                 onFocus={(event) => event.target.select()}
               />
               <button type="button" className={settingsCSS.secondary} onClick={handleCopy}>
-                Copy
+                {t("settings.copy")}
               </button>
             </div>
-            {copyState && <p className={settingsCSS.muted}>{copyState}</p>}
+            {copyState && <p className={settingsCSS.muted}>{t(copyState)}</p>}
 
             <div className={settingsCSS.qrRow}>
               {qrCode ? (
                 <img
                   className={settingsCSS.qrImage}
                   src={qrCode}
-                  alt="QR code for the feedback link"
+                  alt={t("settings.qrAlt")}
                 />
               ) : (
-                <div className={settingsCSS.qrPlaceholder}>QR code</div>
+                <div className={settingsCSS.qrPlaceholder}>{t("dashboard.qrCode")}</div>
               )}
               {qrCode && (
                 <a className={settingsCSS.secondary} href={qrCode} download="wingman-qr.png">
-                  Download QR (PNG)
+                  {t("dashboard.downloadQr")}
                 </a>
               )}
             </div>
-            <p className={settingsCSS.muted}>Print this for tables or receipts.</p>
+            <p className={settingsCSS.muted}>{t("settings.print")}</p>
           </section>
 
           <section className={settingsCSS.card}>
-            <h2>Account</h2>
-            <p className={settingsCSS.muted}>Email: {restaurant.email}</p>
+            <h2>{t("settings.account")}</h2>
+            <p className={settingsCSS.muted}>{t("settings.email")} {restaurant.email}</p>
           </section>
         </div>
       </form>
