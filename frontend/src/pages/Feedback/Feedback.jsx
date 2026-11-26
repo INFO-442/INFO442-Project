@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { useAuth } from "@/context/AuthContext.jsx"
 import { supabase } from "@/lib/supabase"
-import { LANGUAGES } from "@/i18n/translations"
 import { useLanguage } from "@/i18n/LanguageContext.jsx"
 import { ensureTranslations, loadFeedback } from './Feedback.controller.js'
 
@@ -14,18 +13,6 @@ const stars = {
     2: "★★☆☆☆",
     1: "★☆☆☆☆",
   }
-
-function languageName(code) {
-  for (let i = 0; i < LANGUAGES.length; i++) {
-    if (LANGUAGES[i].code === code) {
-      return LANGUAGES[i].label
-    }
-  }
-  if (code) {
-    return code
-  }
-  return ""
-}
 
 function answerText(response) {
   if (response.native_text) {
@@ -85,7 +72,7 @@ function toPageFeedback(feedback) {
 
   return {
     Feedback_ID: feedback.id,
-    Language: languageName(feedback.language),
+    Language: feedback.language,
     Date: feedback.submitted_at,
     voice: voice,
     Rating: feedback.rating,
@@ -139,7 +126,7 @@ function FeedbackPage() {
         if (error) {
           throw error
         }
-        setPreferredLanguage(languageName(data.feedback_language))
+        setPreferredLanguage(data.feedback_language)
 
         await ensureTranslations(supabase, data.id)
         const list = await loadFeedback(supabase, data.id)
@@ -209,7 +196,7 @@ function FeedbackPage() {
               <tr>
                 <th>{t("feedback.date")}</th>
                 <th>{t("feedback.rating")}</th>
-                <th className={feedbackCSS.wideColumn} >{t("feedback.column").replace("{language}", preferredLanguage)}</th>
+                <th className={feedbackCSS.wideColumn} >{t("feedback.column").replace("{language}", t(`language.${preferredLanguage}`))}</th>
                 <th>{t("feedback.sentiment")}</th>
               </tr>
             </thead>
@@ -271,7 +258,7 @@ function Filters({search, rating, sentiment, sort, setSearch, setRating, setSent
 function TableRow({ feedback, setFullFeedback }) {
   const { t, language } = useLanguage()
   return <tr>
-    <td>{new Date(feedback.Date).toLocaleString(language, { month: "short", day: "numeric"})}</td>
+    <td><span className={feedbackCSS.date}>{new Date(feedback.Date).toLocaleString(language, { month: "short", day: "numeric"})}</span></td>
     <td><span className={feedbackCSS.rating}>{stars[feedback.Rating]}</span></td>
     <td><Feedback setFullFeedback={setFullFeedback} feedback={feedback} /></td>
     <td><span className={`${feedbackCSS.sentiment} ${
@@ -285,14 +272,13 @@ function Feedback({ setFullFeedback, feedback }) {
   const { t } = useLanguage()
   const [translated, setTranslated] = useState(true);
   const response = feedback.Responses.find((response) => response.Question_Type === "short_answer");
-  const language = feedback.Language;
 
   return <>
       {response ? <span>Q: {translated ? response.Question_Translated : response.Question_Native} →
           "{translated ? response.Translated.substring(0, 10) : response.Native.substring(0, 10)}..."</span>
         : <span>{t("dashboard.noWrittenComments")}</span>}
       <div className={feedbackCSS.feedbackUnder}>
-        <span>{t("dashboard.original")} {language} </span>
+        <span>{t("dashboard.original")} {t(`language.${feedback.Language}`)} </span>
         <button onClick={() => setTranslated(!translated)} >{translated ? t("dashboard.showOriginal") : t("dashboard.showTranslated")}</button>
         <button onClick={() => setFullFeedback(feedback)} command="show-modal" commandfor="full-response">{t("feedback.viewFull")}</button>
       </div>
@@ -326,11 +312,11 @@ function FullResponse({ feedback, preferredLanguage}) {
               <div className={feedbackCSS.responseAnswers}>
                 <div>
                   <p>{response.Translated === "" ? t("feedback.noAnswer") : response.Translated}</p>
-                  <span>{t("feedback.translated").replace("{language}", preferredLanguage)}</span>
+                  <span>{t("feedback.translated").replace("{language}", t(`language.${preferredLanguage}`))}</span>
                 </div>
                 <div>
                   <p>{response.Native === "" ? t("feedback.noAnswer") : response.Native}</p>
-                  <span>{t("feedback.originalLanguage").replace("{language}", feedback.Language)}</span>
+                  <span>{t("feedback.originalLanguage").replace("{language}", t(`language.${feedback.Language}`))}</span>
                 </div>
               </div>
             </div>)
