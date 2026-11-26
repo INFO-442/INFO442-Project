@@ -160,3 +160,12 @@
   color: darkgreen;
   font-size: 0.85rem;
 }
+
+@media (max-width: 650px) {
+  .linkRow {
+    flex-wrap: wrap;
+  }
+  .linkRow .secondary {
+    flex: 0 0 auto;
+  }
+}

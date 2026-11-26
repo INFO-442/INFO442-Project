@@ -231,3 +231,23 @@
   gap: 0.6rem;
   margin-top: 1.25rem;
 }
+
+@media (max-width: 800px) {
+  .dialog {
+    max-width: 85vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 650px) {
+  .row {
+    flex-wrap: wrap;
+  }
+  .actions {
+    flex-wrap: wrap;
+  }
+  .actions > button {
+    flex: 1 1 auto;
+  }
+}
