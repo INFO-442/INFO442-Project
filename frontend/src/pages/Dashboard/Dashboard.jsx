@@ -193,7 +193,7 @@ function DashboardPage() {
           <h1 className={dashboardCSS.welcome}>{restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
         </div>
         <div className={dashboardCSS.subheader}>
-          <span>{t("dashboard.feedbackLanguage")} <b>{restaurant && LABELS[restaurant.feedback_language]}</b></span>
+          <span>{t("dashboard.feedbackLanguage")} <b>{restaurant && t(`language.${restaurant.feedback_language}`)}</b></span>
           <div>
             <label>{t("dashboard.timeRange")}</label>
             <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
@@ -317,7 +317,7 @@ function FeedbackSection({ feedbackData }) {
           <div>
             <span className={dashboardCSS.rating}>{STARS[feedback.rating]}</span>
             <span className={dashboardCSS.bubble}>{t(`dashboard.sentiment.${feedback.sentiment}`)}</span>
-            <span className={dashboardCSS.bubble}>{t("dashboard.original")} {LABELS[feedback.language]}</span>
+            <span className={dashboardCSS.bubble}>{t("dashboard.original")} {t(`language.${feedback.language}`)}</span>
           </div>
           <FeedbackText feedback={feedback}/>
         </div>
