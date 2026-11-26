@@ -1,3 +1,5 @@
+import { detectLanguage } from "../../lib/ai.js";
+
 const MESSAGES = {
   invalidLink: "This feedback link isn't valid. Please ask the restaurant for a new one.",
   noRating: "Please give an overall rating before submitting.",
@@ -28,7 +30,7 @@ export async function submitFeedback(supabase, restaurantId, feedbackId, rating,
   }
 
   const rows = [];
-  let hasText = false;
+  const texts = [];
 
   for (let i = 0; i < answers.length; i++) {
     const answer = answers[i];
@@ -44,7 +46,7 @@ export async function submitFeedback(supabase, restaurantId, feedbackId, rating,
         throw makeError("tooLong");
       }
       row.native_text = text;
-      hasText = true;
+      texts.push(text);
       rows.push(row);
     }
 
@@ -59,22 +61,27 @@ export async function submitFeedback(supabase, restaurantId, feedbackId, rating,
     }
   }
 
-  let sentiment = null;
+  let sentiment = "neutral";
   if (rating >= 4) {
     sentiment = "positive";
-  } else if (rating === 3) {
-    sentiment = "neutral";
-  } else {
-      sentiment = "negative";
+  } else if (rating <= 2) {
+    sentiment = "negative";
   }
-  
+
+  let customerLanguage = language;
+  if (texts.length > 0) {
+    const detected = await detectLanguage(texts[0]);
+    if (detected) {
+      customerLanguage = detected;
+    }
+  }
 
   const feedbackResult = await supabase.from("feedback").insert({
     id: feedbackId,
     restaurant_id: restaurantId,
     rating: rating,
     sentiment: sentiment,
-    language: language,
+    language: customerLanguage,
   });
 
   if (feedbackResult.error && feedbackResult.error.code !== "23505") {

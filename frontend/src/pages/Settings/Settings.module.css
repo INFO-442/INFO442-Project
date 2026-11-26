@@ -121,6 +121,7 @@
 .qrRow {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -158,4 +159,13 @@
 .notice {
   color: darkgreen;
   font-size: 0.85rem;
+}
+
+@media (max-width: 650px) {
+  .linkRow {
+    flex-wrap: wrap;
+  }
+  .linkRow .secondary {
+    flex: 0 0 auto;
+  }
 }

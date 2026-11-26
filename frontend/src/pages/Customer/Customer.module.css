@@ -79,7 +79,7 @@
 
 .voice_button {
   aspect-ratio: 1 / 1;
-  height: 3rem;
+  height: 3.2rem;
   margin: 0 0.8rem auto 0.8rem;
   border-radius: 50%;
   border: 1px solid black;
@@ -87,6 +87,9 @@
   color: var(--bg);
   cursor: pointer;
   font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .voice_button:disabled {
@@ -101,6 +104,9 @@
 
 .textarea {
   width: 100%;
+  field-sizing: content;
+  min-height: 4rem;
+
   box-sizing: border-box;
   padding: 0.6rem 0.7rem;
   border: 1px solid black;

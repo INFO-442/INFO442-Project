@@ -130,11 +130,17 @@ function DashboardPage() {
     </main>
   }
 
-  if (stats === undefined) return <main className={dashboardCSS.page}><h3>{t("dashboard.loading")}</h3></main>
+  if (stats === undefined) return <main className={dashboardCSS.page}>
+      <h1 className={dashboardCSS.welcome}>{t("dashboard.welcomeLoading")}</h1>
+      <p>{t("dashboard.loading")}</p>
+    </main>
 
   if (stats === null) {
     return <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        <div className={dashboardCSS.welcomeHeader}>
+          <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}</h1>
+          <h1 className={dashboardCSS.welcome}>{restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        </div>
         <div className={dashboardCSS.no_feedback}>
           <h2>{t("dashboard.noFeedback")}</h2>
           <p>{t("dashboard.noFeedbackBody")}</p>
@@ -182,16 +188,21 @@ function DashboardPage() {
 
   return (
       <main className={dashboardCSS.page}>
-        <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}, {restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        <div className={dashboardCSS.welcomeHeader}>
+          <h1 className={dashboardCSS.welcome}>{t("dashboard.welcome")}</h1>
+          <h1 className={dashboardCSS.welcome}>{restaurant && restaurant.owner_name} — {restaurant && restaurant.name}</h1>
+        </div>
         <div className={dashboardCSS.subheader}>
           <span>{t("dashboard.feedbackLanguage")} <b>{restaurant && LABELS[restaurant.feedback_language]}</b></span>
-          <label>{t("dashboard.timeRange")}</label>
-          <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
-            <option value="7">{t("dashboard.last7Days")}</option>
-            <option value="30">{t("dashboard.last30Days")}</option>
-            <option value="90">{t("dashboard.last3Months")}</option>
-            <option value="">{t("dashboard.allTime")}</option>
-          </select>
+          <div>
+            <label>{t("dashboard.timeRange")}</label>
+            <select value={timeRange} onChange={(e) => setTimeRange(e.target.value)}>
+              <option value="7">{t("dashboard.last7Days")}</option>
+              <option value="30">{t("dashboard.last30Days")}</option>
+              <option value="90">{t("dashboard.last3Months")}</option>
+              <option value="">{t("dashboard.allTime")}</option>
+            </select>
+          </div>
         </div>
         <div className={dashboardCSS.stats}>
           {stats && Object.entries(stats).map(([label, value]) => (
@@ -317,8 +328,11 @@ function FeedbackSection({ feedbackData }) {
 function FeedbackText({ feedback }) {
   const { t } = useLanguage();
   const [translated, setTranslated] = useState(true);
+  const text = feedback.noWrittenComments ? t("dashboard.noWrittenComments") : translated ? feedback.translated_text : feedback.native_text;
+  const characters = Array.from(text ?? "");
+  const displayText = characters.length > 200 ? `${characters.slice(0, 199).join("")}…` : text;
   return <div>
-        <span>{feedback.noWrittenComments ? t("dashboard.noWrittenComments") : translated ? feedback.translated_text : feedback.native_text}</span>
+        <span>{displayText}</span>
         {feedback.native_text !== "" && <button onClick={() => setTranslated(!translated)} >{translated ? t("dashboard.showOriginal") : t("dashboard.showTranslated")}</button>}
       </div>
 }

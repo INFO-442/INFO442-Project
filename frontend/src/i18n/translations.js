@@ -32,7 +32,8 @@ export const translations = {
     "nav.signup": "Sign up",
     "nav.language": "Language",
 
-    "dashboard.welcome": "Welcome",
+    "dashboard.welcome": "Welcome,",
+    "dashboard.welcomeLoading": "Welcome!",
     "dashboard.loading": "Loading...",
     "dashboard.loadError": "We couldn't load your feedback. Check your internet connection.",
     "dashboard.tryAgain": "Try again.",
@@ -149,7 +150,8 @@ export const translations = {
     "nav.signup": "Registrarse",
     "nav.language": "Idioma",
 
-    "dashboard.welcome": "Bienvenido/a",
+    "dashboard.welcome": "Bienvenido/a,",
+    "dashboard.welcomeLoading": "¡Bienvenido/a!",
     "dashboard.loading": "Cargando...",
     "dashboard.loadError": "No pudimos cargar tus comentarios. Comprueba tu conexión a Internet.",
     "dashboard.tryAgain": "Inténtalo de nuevo.",
@@ -266,7 +268,8 @@ export const translations = {
     "nav.signup": "Đăng ký",
     "nav.language": "Ngôn ngữ",
 
-    "dashboard.welcome": "Chào mừng",
+    "dashboard.welcome": "Chào mừng,",
+    "dashboard.welcomeLoading": "Chào mừng!",
     "dashboard.loading": "Đang tải...",
     "dashboard.loadError": "Không thể tải phản hồi. Vui lòng kiểm tra kết nối internet.",
     "dashboard.tryAgain": "Thử lại.",
@@ -383,7 +386,8 @@ export const translations = {
     "nav.signup": "注册",
     "nav.language": "语言",
 
-    "dashboard.welcome": "欢迎",
+    "dashboard.welcome": "欢迎，",
+    "dashboard.welcomeLoading": "欢迎！",
     "dashboard.loading": "正在加载...",
     "dashboard.loadError": "无法加载您的反馈，请检查网络连接。",
     "dashboard.tryAgain": "重试。",
@@ -500,7 +504,8 @@ export const translations = {
     "nav.signup": "회원가입",
     "nav.language": "언어",
 
-    "dashboard.welcome": "환영합니다",
+    "dashboard.welcome": "환영합니다,",
+    "dashboard.welcomeLoading": "환영합니다!",
     "dashboard.loading": "불러오는 중...",
     "dashboard.loadError": "피드백을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.",
     "dashboard.tryAgain": "다시 시도하세요.",
@@ -617,7 +622,8 @@ export const translations = {
     "nav.signup": "Kaydol",
     "nav.language": "Dil",
 
-    "dashboard.welcome": "Hoş geldiniz",
+    "dashboard.welcome": "Hoş geldiniz,",
+    "dashboard.welcomeLoading": "Hoş geldiniz!",
     "dashboard.loading": "Yükleniyor...",
     "dashboard.loadError": "Geri bildiriminiz yüklenemedi. İnternet bağlantınızı kontrol edin.",
     "dashboard.tryAgain": "Tekrar deneyin.",
@@ -734,7 +740,8 @@ export const translations = {
     "nav.signup": "ተመዝገብ",
     "nav.language": "ቋንቋ",
 
-    "dashboard.welcome": "እንኳን ደህና መጡ",
+    "dashboard.welcome": "እንኳን ደህና መጡ፣",
+    "dashboard.welcomeLoading": "እንኳን ደህና መጡ!",
     "dashboard.loading": "በመጫን ላይ...",
     "dashboard.loadError": "አስተያየቶችዎን መጫን አልተቻለም። የበይነመረብ ግንኙነትዎን ያረጋግጡ።",
     "dashboard.tryAgain": "እንደገና ይሞክሩ።",
@@ -851,7 +858,8 @@ export const translations = {
     "nav.signup": "إنشاء حساب",
     "nav.language": "اللغة",
 
-    "dashboard.welcome": "مرحبًا",
+    "dashboard.welcome": "مرحبًا،",
+    "dashboard.welcomeLoading": "مرحبًا!",
     "dashboard.loading": "جارٍ التحميل...",
     "dashboard.loadError": "تعذّر تحميل ملاحظاتك. تحقق من اتصالك بالإنترنت.",
     "dashboard.tryAgain": "حاول مرة أخرى.",

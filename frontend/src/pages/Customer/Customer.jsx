@@ -109,13 +109,11 @@ function CustomerPage() {
   async function handleVoice(questionID) {
     if (listening && voiceQID === questionID) {
       await SpeechRecognition.stopListening();
-      if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
       resetTranscript();
       setVoiceQID(null);
     } else {
       if (listening) {
         await SpeechRecognition.stopListening();
-        if (finalTranscript === "" && interimTranscript !== "") appendAnswer(voiceQID, interimTranscript + ". ")
         resetTranscript();
       }
 
@@ -130,10 +128,10 @@ function CustomerPage() {
 
 
   useEffect(() => {
-  if (finalTranscript) {
-    appendAnswer(voiceQID, finalTranscript + ". ")
-    resetTranscript();
-  }
+    if (finalTranscript && finalTranscript !== "") {
+      appendAnswer(voiceQID, transcript + ". ")
+      resetTranscript();
+    }
   }, [finalTranscript])
 
   useEffect(() => {
