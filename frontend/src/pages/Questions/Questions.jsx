@@ -9,27 +9,23 @@ const ratingQuestionLabel = "Overall rating (1-5 stars)"
 const maxQuestions = 5
 const maxQuestionLength = 200
 const suggestedQuestions = [
-  "How was the food?",
-  "How was the service?",
-  "How was the wait time?",
-  "How clean was the restaurant?",
-  "What should we add to the menu?",
-  "How did you hear about us?",
+  { key: "food", text: "How was the food?" },
+  { key: "service", text: "How was the service?" },
+  { key: "wait_time", text: "How was the wait time?" },
+  { key: "cleanliness", text: "How clean was the restaurant?" },
+  { key: "menu", text: "What should we add to the menu?" },
+  { key: "heard_about", text: "How did you hear about us?" },
 ]
+
 const answerTypes = [
   { value: "short_answer", label: "Short answer" },
   { value: "scale", label: "1-5 scale" },
   { value: "yes_no", label: "Yes / No" },
 ]
 
-function answerTypeLabel(value) {
-  const type = answerTypes.find((item) => item.value === value)
-  return type ? type.label : value
-}
-
 function QuestionsPage() {
   const { session } = useAuth()
-  const { language } = useLanguage()
+  const {t, language } = useLanguage()
   const userId = session.user.id
   
   
@@ -62,7 +58,7 @@ function QuestionsPage() {
         const list = await loadQuestions(supabase, data.id, language)
         setQuestions(list)
       } catch {
-        setLoadError("Couldn't load your questions. Check your connection and try again.")
+        setLoadError("questions.error.load")
       }
       setLoading(false)
     }
@@ -102,12 +98,12 @@ function QuestionsPage() {
       const newList = questions.slice()
       newList.push(added)
       setQuestions(newList)
-      setNotice("✓ Questions saved. Your customer form is updated.")
+      setNotice("questions.saved")
       setText("")
       setSuggested("")
       setAnswerType("short_answer")
     } catch (addError) {
-      setError(addError.message)
+      setError("questions.error." + addError.code)
     }
     setSaving(false)
   }
@@ -125,15 +121,15 @@ function QuestionsPage() {
         }
       }
       setQuestions(newList)
-      setNotice("✓ Questions saved. Your customer form is updated.")
+      setNotice("questions.saved")
     } catch (removeError) {
-      setError(removeError.message)
+      setError("questions.error." + removeError.code)
     }
   }
   if (loading) {
     return (
         <main className={questionsCSS.page}>
-        <p className={questionsCSS.muted}>Loading your questions...</p>
+        <p className={questionsCSS.muted}>{t("questions.loading")}</p>
       </main>
     )
   }
@@ -141,7 +137,7 @@ function QuestionsPage() {
   if (loadError) {
     return (
         <main className={questionsCSS.page}>
-        <p className={questionsCSS.error}>{loadError}</p>
+        <p className={questionsCSS.error}>{t(loadError)}</p>
       </main>
     )
   }
@@ -149,15 +145,15 @@ function QuestionsPage() {
     <main className={questionsCSS.page}>
       <div className={questionsCSS.layout}>
         <div className={questionsCSS.mainColumn}>
-          <h1>Your feedback questions</h1>
-          <p className={questionsCSS.subtitle}>Create up to 5 questions.</p>
+          <h1>{t("questions.title")}</h1>
+          <p className={questionsCSS.subtitle}>{t("questions.subtitle")}</p>
 
           <ul className={questionsCSS.list}>
             <li className={questionsCSS.row}>
               <span className={questionsCSS.number}>1.</span>
               <span aria-hidden="true">★</span>
-              <span>{ratingQuestionLabel}</span>
-              <span className={questionsCSS.pill}>Always on</span>
+              <span>{t("questions.ratingLabel")}</span>
+              <span className={questionsCSS.pill}>{t("questions.alwaysOn")}</span>
             </li>
 
             {questions.map((question, index) => (
@@ -165,15 +161,15 @@ function QuestionsPage() {
                 <span className={questionsCSS.number}>{index + 2}.</span>
                 <span>{question.text}</span>
                 <span className={questionsCSS.pill}>
-                  {answerTypeLabel(question.answerType)}
+                  {t("questions.type." + question.answerType)}
                 </span>
-                {!question.suggestedKey && <span className={questionsCSS.pill}>Custom</span>}
+                {!question.suggestedKey && <span className={questionsCSS.pill}>{t("questions.custom")}</span>}
                 <button
                   type="button"
                   className={questionsCSS.linkButton}
                   onClick={() => setPendingRemove(question)}
                 >
-                  Remove
+                  {t("questions.remove")}
                 </button>
               </li>
             ))}
@@ -181,35 +177,35 @@ function QuestionsPage() {
 
           {questions.length === 0 && (
             <p className={questionsCSS.muted}>
-              No extra questions yet. Customers only see the rating.
+              {t("questions.empty")}
             </p>
           )}
         </div>
 
         <aside className={questionsCSS.sideColumn}>
           <section className={questionsCSS.card}>
-            <h2>Add a question</h2>
+            <h2>{t("questions.addTitle")}</h2>
 
             <form className={questionsCSS.form} onSubmit={handleAdd}>
               <label className={questionsCSS.field}>
-                Pick a suggested question
+                {t("questions.pickSuggested")}
                 <select className={questionsCSS.select} value={suggested} onChange={pickSuggested}>
-                  <option value="">Choose a suggested question</option>
+                  <option value="">{t("questions.chooseSuggested")}</option>
                   {suggestedQuestions.map((question) => (
-                    <option key={question} value={question}>
-                      {question}
+                    <option key={question.key} value={question.text}>
+                      {t("questions.suggested." + question.key)}
                     </option>
                   ))}
                 </select>
               </label>
 
               <label className={questionsCSS.field}>
-                ...or write your own (any language)
+                {t("questions.writeOwn")}
                 <input
                   type="text"
                   className={questionsCSS.input}
                   value={text}
-                  placeholder="Type your question"
+                  placeholder={t("questions.placeholder")}
                   onChange={(event) => setText(event.target.value)}
                 />
                 <span className={questionsCSS.counter}>
@@ -218,7 +214,7 @@ function QuestionsPage() {
               </label>
 
               <label className={questionsCSS.field}>
-                Answer type
+                {t("questions.answerType")}
                 <select
                   className={questionsCSS.select}
                   value={answerType}
@@ -226,7 +222,7 @@ function QuestionsPage() {
                 >
                   {answerTypes.map((type) => (
                     <option key={type.value} value={type.value}>
-                      {type.label}
+                      {t("questions.type." + type.value)}
                     </option>
                   ))}
                 </select>
@@ -234,17 +230,17 @@ function QuestionsPage() {
 
               <div>
                 <button type="submit" className={questionsCSS.primary} disabled={atLimit || saving}>
-                  + Add question
+                  {t("questions.add")}
                 </button>
               </div>
 
               {atLimit && (
                 <p className={questionsCSS.muted}>
-                  You can have up to 5 questions. Remove one to add another.
+                  {t("questions.error.limit")}
                 </p>
               )}
-              {error && <p className={questionsCSS.error}>{error}</p>}
-              {notice && <p className={questionsCSS.notice}>{notice}</p>}
+              {error && <p className={questionsCSS.error}>{t(error)}</p>}
+              {notice && <p className={questionsCSS.notice}>{t(notice)}</p>}
             </form>
           </section>
         </aside>
@@ -256,13 +252,12 @@ function QuestionsPage() {
             className={questionsCSS.dialog}
             role="dialog"
             aria-modal="true"
-            aria-label="Remove question"
+            aria-label={t("questions.removeTitle")}
             onClick={(event) => event.stopPropagation()}
           >
-            <h2>Remove this question?</h2>
+            <h2>{t("questions.removeTitle")}</h2>
             <p>
-              Remove “{pendingRemove.text}” Past answers will still appear on your
-              dashboard.
+              "{pendingRemove.text}" {t("questions.removeBody")}
             </p>
             <div className={questionsCSS.actions}>
               <button
@@ -270,14 +265,14 @@ function QuestionsPage() {
                 className={questionsCSS.secondary}
                 onClick={() => setPendingRemove(null)}
               >
-                Cancel
+                {t("questions.cancel")}
               </button>
               <button
                 type="button"
                 className={questionsCSS.danger}
                 onClick={handleConfirmRemove}
               >
-                Remove
+                {t("questions.remove")}
               </button>
             </div>
           </div>
