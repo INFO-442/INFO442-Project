@@ -27,11 +27,18 @@
 }
 
 .brand {
-  padding: 6px 14px;
-  border: 2px solid black;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   color: black;
   text-decoration: none;
+}
+
+.brandLogo {
+  height: 22px;
+  width: auto;
+  display: block;
 }
 
 .logout {

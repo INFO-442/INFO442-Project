@@ -2,6 +2,7 @@ import { Link, NavLink, useNavigate } from "react-router";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/i18n/LanguageContext.jsx";
 import LanguageSelector from "@/components/LanguageSelector/LanguageSelector.jsx";
+import wingmanLogo from "@/assets/wingman-logo.svg";
 import styles from "./Navbar.module.css";
 
 function Navbar({ type, restaurantName }) {
@@ -17,10 +18,14 @@ function Navbar({ type, restaurantName }) {
     <nav className={styles.navbar}>
       <div className={styles.group}>
         {type === "customer" ? (
-          <span className={styles.brand}>{restaurantName}</span>
+          <span className={styles.brand}>
+            <img src={wingmanLogo} alt="" aria-hidden="true" className={styles.brandLogo} />
+            <span>{restaurantName}</span>
+          </span>
         ) : (
           <Link to="/" className={styles.brand}>
-            Wingman
+            <img src={wingmanLogo} alt="" aria-hidden="true" className={styles.brandLogo} />
+            <span>Wingman</span>
           </Link>
         )}
 
